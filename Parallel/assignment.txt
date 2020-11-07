@@ -1,0 +1,24 @@
+Step 1
+
+Make all bodies free moving, as well as introduce the collision mechanics.
+
+    New mass = m1 + m2
+    position = average prev. positions
+    weighted velocity = m1v1/M + m2v2/M
+    collision after p1 - p2 abs <= C(m1 + m2)   where C = 10^-2  / N where N is num of bodies.
+
+Step 2 
+
+Vectorise the code for efficiency
+ utilise open MP pragmas
+
+Step 3
+
+Implement Runge Kutta time step algorithm for particle movement.
+
+Step 4 
+
+Parallelisation using the open mp parallisation pragmas 
+
+step 5 is a report on the stuffs
+
