@@ -87,10 +87,10 @@ void updateBody() {
             //send to calc forces and minDx
             calcForce(n,m, x[n], x[m], &Gx, &Gy, &Gz);
 
-            //Add forces to pair
-            forcex[n] += Gx; forcex[m] += Gx;
-            forcey[n] += Gy; forcey[m] += Gy;
-            forcez[n] += Gz; forcez[m] += Gz;
+            //Add forces to pair, but negate from the other.
+            forcex[n] += Gx; forcex[m] -= Gx;
+            forcey[n] += Gy; forcey[m] -= Gy;
+            forcez[n] += Gz; forcez[m] -= Gz;
 
             printf("force: %f %f\n", forcex[n], Gx); 
 
@@ -99,6 +99,8 @@ void updateBody() {
 
 //Iterate thru all and update particle pos based on prev. velocity, then compute new velocities
     for (int i=0; i<NumberOfBodies; i++) {
+        double inc = timeStepSize * v[i][1];
+        printf("start: %f, increment: %f, vel: %f,  ", x[i][1], inc, v[i][1]);
         x[i][0] += timeStepSize * v[i][0];
         x[i][1] += timeStepSize * v[i][1];
         x[i][2] += timeStepSize * v[i][2];
@@ -106,8 +108,7 @@ void updateBody() {
         v[i][1] += timeStepSize * forcey[i] / mass[i];
         v[i][2] += timeStepSize * forcez[i] / mass[i];
 
-        double inc = timeStepSize * v[i][0];
-        printf("start: %f, increment: %f, vel: %f,  ", x[i][1], inc, v[i][1]);
+        
         printf("end: %f, ", x[i][1]);
         printf("speed: %f\n", v[i][2]);
     }
