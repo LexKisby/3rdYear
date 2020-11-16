@@ -66,9 +66,9 @@ void updateBody() {
       maxMass = std::max(maxMass, mass[m]);
   }
 
-  // force0 = force along x direction
-  // force1 = force along y direction
-  // force2 = force along z direction
+  // forcex = force along x direction
+  // forcey = force along y direction
+  // forcez = force along z direction
   //generate pointers to lists so each body has a force
   double* forcex = new double[NumberOfBodies];
   double* forcey = new double[NumberOfBodies];
@@ -178,10 +178,10 @@ int main() {
         }
     }
 //set locations
-    x[0][0] = 100;
+    x[0][0] = 10;
 	x[0][1] = 0;
 	x[0][2] = 0;
-    x[1][0] = 10;
+    x[1][0] = 11;
 	x[1][1] = 0;
 	x[1][2] = 0;
 	x[2][0] = 0;
