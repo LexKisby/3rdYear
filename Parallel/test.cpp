@@ -88,9 +88,9 @@ void updateBody() {
             calcForce(n,m, x[n], x[m], &Gx, &Gy, &Gz);
 
             //Add forces to pair, but negate from the other.
-            forcex[n] += Gx; forcex[m] -= Gx;
-            forcey[n] += Gy; forcey[m] -= Gy;
-            forcez[n] += Gz; forcez[m] -= Gz;
+            forcex[n] -= Gx; forcex[m] += Gx;
+            forcey[n] -= Gy; forcey[m] += Gy;
+            forcez[n] -= Gz; forcez[m] += Gz;
 
             printf("force: %f %f\n", forcex[n], Gx); 
 
@@ -110,7 +110,7 @@ void updateBody() {
 
         
         printf("end: %f, ", x[i][1]);
-        printf("speed: %f\n", v[i][2]);
+        printf("speed: %f\n", v[i][1]);
     }
 //check for collisions, reduce number of bodies, maintain integrity of arrays.
 if (minDx < C*2*maxMass) {
