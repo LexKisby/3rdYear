@@ -15,7 +15,7 @@ double maxV = 0;
 double minDx = 100;
 double** x;
 double** v;
-double timeStepSize = 1;
+double timeStepSize = 0.01;
 double* mass;
 double t = 0;
 
