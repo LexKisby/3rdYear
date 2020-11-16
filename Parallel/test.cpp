@@ -17,6 +17,7 @@ double** x;
 double** v;
 double timeStepSize = 1;
 double* mass;
+double t = 0;
 
 int NumberOfBodies;
 double C = 0.01/3;
@@ -129,7 +130,7 @@ if (minDx < C*2*maxMass) {
                 //re allocate within memory, move final body into 'm' position
                 v[m] = v[NumberOfBodies];
                 mass[m] = mass[NumberOfBodies];
-                x[m] = x[NumberOfBodies]
+                x[m] = x[NumberOfBodies];
                 //reduce Number of Bodies by 1
                 NumberOfBodies -= 1;
             }
@@ -147,6 +148,8 @@ for (int i=0; i<NumberOfBodies; i++) {
     maxV = std::max(std::sqrt(tempV), maxV);
 }
     t += timeStepSize;
+    printf("time:  %f,   \n", t);
+
     delete[] forcex;
     delete[] forcey;
     delete[] forcez;
@@ -159,7 +162,7 @@ for (int i=0; i<NumberOfBodies; i++) {
 
 
 int main() {
-    int t = 0;
+    
     int T = 5;
     NumberOfBodies = 3;
     x    = new double*[NumberOfBodies];
