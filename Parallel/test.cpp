@@ -1,3 +1,4 @@
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -18,6 +19,20 @@ double timeStepSize = 0.1;
 double* mass;
 
 int NumberOfBodies;
+
+
+void calcForce(int N,int m,  double* Pa, double* Pb, double* fx, double* fy, double* fz) {
+    *fx = 5;
+    *fy = 5;
+    *fz = 5;
+	double dis = Pa[0];
+	printf("%d %d Hello, %f \n",N,m, dis);
+}
+
+
+
+
+
 
 
 void updateBody() {
@@ -45,11 +60,12 @@ void updateBody() {
 
             //need to calc distances
 
-            calcForce(x[n], x[m], &Gx, &Gy, &Gz);
+            calcForce(n,m, x[n], x[m], &Gx, &Gy, &Gz);
             //needs more stuffs
 
             //Add forces to pair
             forcex[n] += Gx; forcex[m] += Gx;
+		printf("force: %f %f\n", forcex[n], Gx); 
             forcey[n] += Gy; forcey[m] += Gy;
             forcez[n] += Gz; forcez[m] += Gz;
 
@@ -59,24 +75,22 @@ void updateBody() {
 //Iterate thru all and update particle pos based on prev. velocity, then compute new velocities
     for (int i=0; i<NumberOfBodies; i++) {
         x[i][0] += timeStepSize * v[i][0];
+	double inc = timeStepSize * v[i][0];
+	printf("start: %f, increment: %f, vel: %f,  ", x[i][1], inc, v[i][1]);
         x[i][1] += timeStepSize * v[i][1];
+	printf("end: %f, ", x[i][1]);
         x[i][2] += timeStepSize * v[i][2];
         v[i][0] += timeStepSize * forcex[i] / mass[i];
         v[i][1] += timeStepSize * forcey[i] / mass[i];
         v[i][2] += timeStepSize * forcez[i] / mass[i];
+printf("speed: %f\n", v[i][2]);
     }
 //check for collisions, reduce number of bodies, maintain integrity of arrays.
 }
 
-void calcForce(double* Pa, double* Pb, double* fx, double* fy, double* fz) {
-    *fx = 5;
-    *fy = 5;
-    *fz = 5;
-}
-
 int main() {
     int t = 0;
-    int T = 2;
+    int T = 5;
     NumberOfBodies = 3;
     x    = new double*[NumberOfBodies];
     v    = new double*[NumberOfBodies];
@@ -92,12 +106,19 @@ int main() {
     }
 //set locations
     x[0][0] = 100;
+	x[0][1] = 0;
+	x[0][2] = 0;
     x[1][0] = 10;
+	x[1][1] = 0;
+	x[1][2] = 0;
+	x[2][0] = 0;
     x[2][1] = 50;
+	x[2][2] = 0;
 
 
 
     while (t++< T) {
         updateBody();
+	printf("Byeeee\n\n");
     }
 }
