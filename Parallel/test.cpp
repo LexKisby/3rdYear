@@ -99,8 +99,8 @@ void updateBody() {
 
 //Iterate thru all and update particle pos based on prev. velocity, then compute new velocities
     for (int i=0; i<NumberOfBodies; i++) {
-        double inc = timeStepSize * v[i][1];
-        printf("start: %f, increment: %f, vel: %f,  ", x[i][1], inc, v[i][1]);
+        double inc = timeStepSize * v[i][0];
+        printf("%d start: %f, increment: %f, vel: %f,  ",i, x[i][0], inc, v[i][0]);
         x[i][0] += timeStepSize * v[i][0];
         x[i][1] += timeStepSize * v[i][1];
         x[i][2] += timeStepSize * v[i][2];
@@ -109,8 +109,8 @@ void updateBody() {
         v[i][2] += timeStepSize * forcez[i] / mass[i];
 
         
-        printf("end: %f, ", x[i][1]);
-        printf("speed: %f\n", v[i][1]);
+        printf("end: %f, ", x[i][0]);
+        printf("speed: %f\n", v[i][0]);
     }
 //check for collisions, reduce number of bodies, maintain integrity of arrays.
 if (minDx < C*2*maxMass) {
