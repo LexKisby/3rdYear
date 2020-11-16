@@ -31,6 +31,7 @@ double tPlot      = 0;
 double tPlotDelta = 0;
 
 int NumberOfBodies = 0;
+double C;
 
 /**
  * Pointer to pointers. Each pointer in turn points to three coordinates, i.e.
