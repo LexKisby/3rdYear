@@ -22,3 +22,8 @@ Parallelisation using the open mp parallisation pragmas
 
 step 5 is a report on the stuffs
 
+
+
+body is the start file
+
+test is the most up to date file
