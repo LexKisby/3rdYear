@@ -1,4 +1,4 @@
-//this is the current most uo to date implementation
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -7,19 +7,28 @@
 #include <limits>
 #include <iomanip>
 
-#include <cmath>
-
-double maxV = 0;
-double minDx = 100;
+double C;
+double maxV;
+double minDx;
+double maxMass;
+int NumberOfBodies;
 double **x;
-double **v;
-double timeStepSize = 0.01;
-double *mass;
 double t = 0;
 
-int NumberOfBodies;
+/**
+ * Equivalent to x storing the velocities.
+ */
+double **v;
 
-double C;
+/**
+ * One mass entry per molecule/particle.
+ */
+double *mass;
+
+/**
+ * Global time step size used.
+ */
+double timeStepSize = 0.0;
 
 double calcDist(double *Pa, double *Pb)
 {
@@ -30,6 +39,7 @@ double calcDist(double *Pa, double *Pb)
     return distance;
 }
 
+//this is no longer used
 void calcForce(int N, int M, double *Pa, double *Pb, double *fx, double *fy, double *fz)
 {
     //calculate the actual distance between N and M
@@ -39,10 +49,7 @@ void calcForce(int N, int M, double *Pa, double *Pb, double *fx, double *fy, dou
     *fx = (Pa[0] - Pb[0]) * mass[N] * mass[M] / distance / distance / distance;
     *fy = (Pa[1] - Pb[1]) * mass[N] * mass[M] / distance / distance / distance;
     *fz = (Pa[2] - Pb[2]) * mass[N] * mass[M] / distance / distance / distance;
-
-    double dis = Pa[0];
 }
-
 void calcVel(int n, int m, double *vx, double *vy, double *vz)
 {
     //calc v
@@ -82,11 +89,22 @@ void updateBody()
     //calculates the force based on current position, then will update position based on previously calculted velocity
     for (int n = 0; n < NumberOfBodies - 1; n++)
     {
+#pragma omp simd reduction(min \
+                           : minDx)
         for (int m = n + 1; m < NumberOfBodies; m++)
         {
             double Gx, Gy, Gz;
-            //send to calc forces and minDx
-            calcForce(n, m, x[n], x[m], &Gx, &Gy, &Gz);
+            //calculate the actual distance between N and M
+            double distance = sqrt(
+                (x[n][0] - x[m][0]) * (x[n][0] - x[m][0]) +
+                (x[n][1] - x[m][1]) * (x[n][1] - x[m][1]) +
+                (x[n][2] - x[m][2]) * (x[n][2] - x[m][2]));
+
+            minDx = std::min(minDx, distance);
+            //calculate the force components along x, y, z axis.
+            Gx = (x[n][0] - x[m][0]) * mass[n] * mass[m] / distance / distance / distance;
+            Gy = (x[n][1] - x[m][1]) * mass[n] * mass[m] / distance / distance / distance;
+            Gz = (x[n][2] - x[m][2]) * mass[n] * mass[m] / distance / distance / distance;
 
             //Add forces to pair, but negate from the other.
             //force has direction so getting the right way is important
@@ -99,10 +117,10 @@ void updateBody()
         }
     }
 
-    //Iterate thru all and update particle pos based on prev. velocity, then compute new velocities to be applied next time step
+//Iterate thru all and update particle pos based on prev. velocity, then compute new velocities to be applied next time step
+#pragma omp simd
     for (int i = 0; i < NumberOfBodies; i++)
     {
-        double inc = timeStepSize * v[i][0];
         x[i][0] += timeStepSize * v[i][0];
         x[i][1] += timeStepSize * v[i][1];
         x[i][2] += timeStepSize * v[i][2];
@@ -138,7 +156,7 @@ void updateBody()
                         v[n][0] = vx;
                         v[n][1] = vy;
                         v[n][2] = vz;
-                        //avg position //TODO   need to weight the avg!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        //avg position with mass weighting
                         x[n][0] = (x[n][0] * mass[n] + x[m][0] * mass[m]) / (mass[n] + mass[m]);
                         x[n][1] = (x[n][1] * mass[n] + x[m][1] * mass[m]) / (mass[n] + mass[m]);
                         x[n][2] = (x[n][2] * mass[n] + x[m][2] * mass[m]) / (mass[n] + mass[m]);
@@ -159,10 +177,11 @@ void updateBody()
 
     //ending adjustment to find max velocity
     maxV = 0;
-    double tempV = 0;
+#pragma omp simd reduction(max \
+                           : maxV)
     for (int i = 0; i < NumberOfBodies; i++)
     {
-        tempV += v[i][0] * v[i][0] + v[i][1] * v[i][1] + v[i][2] * v[i][2];
+        double tempV = v[i][0] * v[i][0] + v[i][1] * v[i][1] + v[i][2] * v[i][2];
         maxV = std::max(std::sqrt(tempV), maxV);
     }
     t += timeStepSize;
@@ -174,37 +193,6 @@ void updateBody()
 
 int main()
 {
-
-    int T = 5;
-    NumberOfBodies = 3;
-    x = new double *[NumberOfBodies];
-    v = new double *[NumberOfBodies];
-    mass = new double[NumberOfBodies];
-
-    for (int i = 0; i < NumberOfBodies; i++)
-    {
-        x[i] = new double[3];
-        v[i] = new double[3];
-        mass[i] = 5;
-        for (int j = 0; j < 3; j++)
-        {
-            v[i][j] = 0;
-        }
-    }
-    //set locations
-    x[0][0] = 10;
-    x[0][1] = 0;
-    x[0][2] = 0;
-    x[1][0] = 11;
-    x[1][1] = 0;
-    x[1][2] = 0;
-    x[2][0] = 0;
-    x[2][1] = 50;
-    x[2][2] = 0;
-
-    while (t < T)
-    {
-        updateBody();
-        printf("Byeeee\n\n");
-    }
+    updateBody();
+    return 1;
 }
