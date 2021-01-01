@@ -250,6 +250,8 @@ void updateBody()
 #pragma omp parallel
     {
         //decided to not extract into functions
+        int ID = omp_get_thread_num();
+        int nthrds = omp_get_num_threads();
 
 #pragma omp for
         for (int i = 0; i < NumberOfBodies; i++)
