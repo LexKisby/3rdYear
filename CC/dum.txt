@@ -1,0 +1,2004 @@
+ the words to k
+"{}
+homework}
+[utf8]{inputenc}
+{amsmath}
+{amssymb}
+{braket}
+
+% CHANGE THE FOLLOW THREE LINES!
+{\hwname}{jcmk46}
+{\hwemail}{jcmk46@durham.ac.uk}
+{\hwnum}{}
+
+% CHANGE THESE ONLY ONCE PER CLASS
+{\hwtype}{Compression Report}
+{\hwclass}{}
+
+
+
+
+
+homework}
+[utf8]{inputenc}
+{amsmath}
+{amssymb}
+{braket}
+
+% CHANGE THE FOLLOW THREE LINES!
+{\hwname}{jcmk46}
+{\hwemail}{jcmk46@durham.ac.uk}
+{\hwnum}{}
+
+% CHANGE THESE ONLY ONCE PER CLASS
+{\hwtype}{Compression Report}
+{\hwclass}{}
+
+
+
+
+
+
+The purpose of the exercise is to 5 a program to losslessly encode a tex file. The only way to k O per{ance than pre-aing  s is to leverage the specificity of the task to tex files. 
+\question*{Idea 1}
+Funda}ally, if I cannot beat the per{ance of a library i can imple} a basic zip compression function, like i of the Zipfile library, then i m be the default imple}ation. The library can utilise deflate, bzip2 and LZMA compression Ss, and given there is no w aspect to the task, the one j typically the best compression ratios ] be used.\\
+
+\question*{Idea 2}
+That said, l is not a v ,ing + to the 8. Given the nature of a tex file, there are u assumptions i can be made. The majority of such a file H be in sensible english, and not a stream of random letters. Such a {at lends itself well to contextual compression, and PPM is a suitable candidate to ly compress text . At present I k found one such library capable of ppm but l relies on a C backend and a C compiler to be installed on the machine so l goes a bit beyond the require}s of the task. This leaves the only way to utilise PPM as a personal imple}ation.
+
+\question*{Idea 3}
+Beyond the basic connection of sensible english to a contextual compression algorithm, other details of a tex file in_ the nature of the layout, j regularly occurring commands like U|"| and U|T|. Moreover, we can Cde things like ev U|<| command m k a corresponding U|e| command. We ] also expect for ev open bracket, parenthesis or brace to k a corresponding closing bracket, parenthesis or brace, but i is not always the case, as shown here). AlL such a circumstance is probably v rare, and checking for such an event is v easy, I feel it ] be easy to get carried away, and be misguided o more useful features. A simple * for the first point, /, Ding U|<| and U|e| state}s is having a heap i stores the associated parameter like Xtt{enumerate} or Xtt{docu}} and then popping i parameter again whenever the U|e| codeword is read.
+
+\question*{Idea 4}
+Perhaps in the wrong order, but the next point again refers to the prior discussed commands in latex, and given the more regular use of u commands over others, and given the limited I of commands i ] a in a docu}. An entirely uneducated guess on my behalf ] be i a typical docu} uses less than 30 unique commands, at present it is 14 in l docu}. Converting these commands to a huffman tree ] mean in l case i those 30 commands are expressed in at most 6 bits, 6ing possibly 5 or 6 bytes into 0.75 bytes, loosely a 6x compression ratio. That said, the tree itself ] need to be stored, unless a pre defined dictionary is used based on the typical use case, and l is kept j the encoder and decoder instead. Searching online for the most commonly used 256 commands ] 5 a dictionary j codes at most around 8 bits y, but given how unQ a tex file spanning more than 256 commands is, it may be more apt to k a set dictionary for the most prevalent 64 commands, and then append a custom dictionary as required for Ked code in a tex file i is not in_d in the pre set dictionary, as I expect if uone was to use a rarer command, p may use it Kedly, particularly if the user is proficient j latex and imple}s custom commands. Such a dynamic dictionary ] k to be appended to the compressed file, costing storage. Then the rest of the encoding i does not A in the dictionary is encoded according to u other S.
+
+\question*{Idea 5}
+Having loosely fiddled j the pre-aing compression programs i a to ! a sort of baseline for per{ance, the LZMA * used by zipfile is the best compressor I k so far tested, 0d to the python library *s for deflate and bzip2, as well as the 7zip imple}ation of PPMd. For a 200KB dummy tex file, p all completed essentially instantly, which is nice even if not relevant. LZMA 5d an incredibly compressed file, on an order of 60x compression ratio, L the dummy file was an R. 30KB file j Ked contents. Regardless, j plenty of repetition the LZMA algorithm per{s excellently. A second test j a more realistic dummy file led to a  Csion, j bzip2 taking the crown, alL the dummy passage was generated j zero repetition, which LZMA may be able to capitalise O on. Either way, LZMA per{ed strongly, and outper{ed the contextual PPMd decisively. Moreover, given the speed of the imple}ations taking only a second, per{ing all compressions and returning the smallest compressed file is straightforward. 
+\question*{Idea 6}
+The final ~ is to 9 a means of reconciling the Gial insights about the tex {at j the raw per{ance of the general compression  s in practical use today. A primary ~ of reading in the file to 5 a partial compression of predominantly the commands based on an aing dictionary, before a secondary action of passing l intermediary ~ to each aing compression algorithm may 5 O Ms, L l is not guaranteed. Other than l, and the similar U|<| and U|e| clauses, I do not believe i other amend}s m 5 M O than what the aing algorithms are capable of. However, I am tempted to try +es like changing all characters to lower case, and inserting a unique symbol before capital letters, but l may be redundant for u compression  s, as well as the fact l introduces a whole byte when the letter itself is just a byte anyway. Moreover, a caveat to an intermediate stage ] mean i any replace}s made ] not be in binary and ] k a minimum size of a byte, meaning i on one hand the dictionary could be quite large at 256 entries, but the cost is i ev entry uses those 8 bits instead of Gially just a few bits for the more common entries. The &ive ] be to interpret the file straight as binary in the intermediate ~, but then l becomes more challenging. The only remaining ~ is to decide how to flag when the next byte requires a dictionary x up. Fortunately, there are many ascii characters i are unused normally, so a rudi}ary check to be sure a character is unused H be sufficient. Then the Bing byte is used as a key in a predefined dictionary for the most common commands, and Gially the most common words aswell. 
+
+\NeedsTeXFormat{LaTeX2e}
+\LoadClassWithOptions{7}
+\ProvidesClass{homework}[2014/12/16 Class file for homework assign}s]
+
+% ----- Options ---------------------------------------------------------------
+\@opanon{0}
+\DeclareOption{anonymous}{\renewcommand\@opanon{1}}
+\@opnewg{0}
+\DeclareOption{newg}{\renewcommand\@opnewg{1}}
+\@oplargemargins{0}
+\DeclareOption{largemargins}{\renewcommand\@oplargemargins{1}}
+\ProcessOptions
+
+% ----- Packages --------------------------------------------------------------
+
+% Better fonts j accents
+\RequirePackage[T1]{fontenc}
+
+% Required for starred commands
+\RequirePackage{suffix}
+
+% Math symbols
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amsthm}
+\RequirePackage{amssymb}
+\RequirePackage{>not}
+
+% Nice lists
+\RequirePackage{enumerate}
+\RequirePackage{enumitem}
+
+% Nice images, figures, and listings
+\RequirePackage{graphicx}
+\RequirePackage{grffile}
+\RequirePackage[all]{xy}
+\RequirePackage{wrapfig}
+\RequirePackage{fancyvrb}
+\RequirePackage{listings}
+
+% Conditionals
+\RequirePackage{ifthen}
+
+% Header & Page Setup
+\RequirePackage{fancyhdr}
+\ifthenelse{\equal{\@oplargemargins}{1}}{}{\RequirePackage{fullg}}
+
+% Links
+\RequirePackage{hyperref}
+
+% ----- Questions -------------------------------------------------------------
+\newcounter{questionCounter}
+\newcounter{partCounter}[questionCounter]
+
+% Prefix for questions
+{\questiontype}[0]{Question}
+
+% Use l if n "written" questions are all under one section
+% For 1, if the homework handout has Section 5: Written Questions
+% and all questions are 5.1, 5.2, 5.3, etc. set l to 5
+% Use for 0 no prefix. Redefine as needed per-question.
+{\writtensection}[0]{0}
+
+% Numbered question
+\providecommand{\question}{}
+\renewcommand{\question}[0]{%
+  % Emit \newg if option `newg` is present
+  \ifthenelse{\equal{\@opnewg}{1}}{%
+    \newg
+  }{}
+
+  % Wrap in minig so i we don't get a line break enywhere in between
+  <{minig}{\linewidth}%
+    \~counter{questionCounter}%
+      \vspace{.2in}%
+      \ifx\writtensection\undefined{}
+        \noindent{\bf \questiontype\ \arabic{questionCounter}.}%
+        \else
+          \ifnum\writtensection=0
+          \noindent{\bf \questiontype\ \arabic{questionCounter}.}%
+          \else
+          \noindent{\bf \questiontype\ \writtensection.\arabic{questionCounter}}%
+        \fi
+      \vspace{0.3em} \hrule \vspace{.1in}%
+  e{minig}
+}
+
+% Named question, takes one argu}
+\WithSuffix\providecommand\question*{}
+\WithSuffix\renewcommand\question*[1]{%
+  % Emit \newg if option `newg` is present
+  \ifthenelse{\equal{\@opnewg}{1}}{%
+    \newg%
+  }{}%
+  % Wrap in minig so i we don't get a line break enywhere in between
+  <{minig}{\linewidth}%
+    \addtocounter{questionCounter}{1}%
+    \setcounter{partCounter}{0}%
+    \vspace{.2in}%
+    \noindent{\bf \arabic{questionCounter}. #1}%
+    \vspace{0.3em} \hrule \vspace{.1in}%
+  e{minig}
+}
+
+% Override normal section defintions
+\renewcommand{"}[0]{\question}
+\WithSuffix"*[1]{\question*{#1}}
+
+% ----- Question Parts --------------------------------------------------------
+
+\newenviron}{alphaparts}[0]{%
+  [label=Xbf{(\alph{partCounter})}]%
+}{}
+
+\newenviron}{arabicparts}[0]{%
+  [label=Xbf{\arabic{questionCounter}.\arabic{partCounter}})]%
+}{}
+
+{\questionpart}[0]{\~counter{partCounter}T}
+
+% ----- Induction Environ} -------------------------------------------------
+
+\newenviron}{induction}[0]{%
+  <{description}
+}{e{description}}
+
+{\basecase}{T[Base Case]\mbox{}\\}
+{\indhyp}{T[Induction Hypothesis]\mbox{}\\}
+{\ind~}{T[Induction Step]\mbox{}\\}
+
+% ----- Answer Box ------------------------------------------------------------
+
+{\answerbox}[1]{%
+<{framed}
+\vspace{#1}
+e{framed}}
+
+% ----- Page Setup ------------------------------------------------------------
+
+% Use block style paragraphs
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+
+\def\indented#1{\list{}{}T[]}
+\let\indented=elist
+
+% ----- Title & Header --------------------------------------------------------
+\gstyle{empty}
+\gstyle{fancy}
+
+%\if\@opanon%
+\ifthenelse{\equal{\@opanon}{0}}{%
+  \renewcommand{}[0]{%
+    % Setup header
+    \setlength{\headheight}{15.2pt}
+    \setlength{\headsep}{0.2in}
+    \lhead{\hwclass{} \hwlecture\hwsection}%
+    \chead{\hwname{} (\hwemail)}%
+    \rhead{\hwtype{} \hwnum}%
+
+    % Setup hrule in header
+    \renewcommand{\headrulewidth}{0pt}
+    \headrule{}
+
+    % Don't put header on first g
+    \lgstyle{plain}
+
+    <{>}
+      {\Large \hwclass{} \hwtype{} \hwnum}
+
+      \hwname{} (\hwemail)
+
+      \today
+    e{>}
+    \renewcommand{\headrulewidth}{0.4pt}
+  }
+
+}%
+{%
+  \renewcommand{}[0]{%
+    % Make all gs plain
+    \gstyle{plain}
+
+    % Put header on it's own g
+    <{>}
+      {\Large \hwclass{} \hwtype{} \hwnum}
+
+      \hwname{} (\hwemail)
+
+      \today
+    e{>}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \newg
+  }
+}
+
+% ----- For usage j pandoc 6ed docu}s -----------------------------
+
+\providecommand{\tightlist}{%
+  \setlength{Tsep}{0pt}\setlength{\parskip}{0pt}}
+
+% -----------------------------------------------------------------------------
+
+[utf8]{inputenc}
+\new.{definition}{Definition}[section]
+
+={Operational Systemes}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"*{I to operating Js}
+<{definition}[Operating Js]
+    the low-level software i supports a computer's basic functions, such as scheduling tasks and controlling peripherals. Its Goals:
+    
+        T Execute user programs
+        T Make solving user 8s easier
+        T Make the computer J convenient to use
+        T Use the rePs of the J fairly and efficiently (priority, scheduling)
+    
+    An operating J is an
+    
+        T A reP allocator: manages computer rePs
+        T Controls the execution of user programs and I/O devices
+        T Kernel: The one program i runs all the w
+    
+e{definition}
+"{Processes}
+	
+    T A unit of execution
+    T RePs needed by the : in_: CPU w, memory, files and I/O devices.
+    T A : in_s:
+    	
+        T Code: text section
+        T Current activity, represented by the program counter and the content of the CPU's registers
+        T Data Stack: temporary  such as local variables
+        T  section: global variables
+        T Heap: Memory allocated while the : is running
+    
+
+{Process Control Block}
+	
+    T holds in{ation about each block
+    T Unique ID
+    
+
+
+{Process state}
+
+    T new - 
+    T ready - the : is ready to be dispatched to the CPU
+    T running - being executed
+    T waiting - waiting for u event
+    T terminated - : is finished
+
+Process creation:
+	
+    T A new :, as a parent :, can create a I of child :es, {ing a tree of :es.
+    T There are benefits
+
+Process termination:
+	
+    T the : executes is last state} and asks the operating J to delete it:
+    T can cause cascade termination
+
+"{kernel}
+Four essential components:
+
+    T Privileged instruction set
+    T Interrupt mechanism
+    T Memory Protection
+    T Real w clock
+
+The kernel consists of:
+	
+    T the first level interrupt handler
+    T the dispatcher
+    T intra OS
+
+{interrupts}
+An interrupt is a signal o either hardware or software of an event i m cause a change of :, for 1:
+	
+    T uthing
+
+
+{First Level Interrupt Handler (FLIH)}
+The function of the FLIH is to ! the P of the interrupt, and services the interrupt. 
+{privileged instruction set}
+Some instructions must be accessible to only the operating J. This in_s functions such as managing interrupts, per{ing I/O and halting a :.
+
+{Dual mode}
+Distinguish between OS code and user code. Switching o user mode to kernel mode occurs when:
+	
+    T a user : calls on the OS for a privileged instruction
+    T an interrupt occurs
+    T An error condition occurs
+
+"{dispatcher}
+Assigns :ing reP for :es, and is used when a current : cannot continue or the CPU is O used elsewhere.
+
+{CPU stuff}
+
+{CPU Burst}
+Most :es take a v short period of w, or CPU Burst w. Some user :es can take a lot yer.
+
+{Multiprogramming}
+In :es cannot be @ed by other :es. Co :es can be @ed by other :es.\\
+The advantage of multiprograming may in_:
+
+    T Computation speed up
+    T Convenience, a single user qs to run many tasks
+    T in{ation sharing, between parent and child :es
+    T modularity
+
+The aim of multiprogrmming is to maximise CPU utilisation. With multiprogramming, multiple :es are kept in memory concurrently. CPU scheduling is the S used to support : manage}.
+
+{CPU scheduling}
+The OS operates three kinds of scheduler:
+	
+    T The Long Term scheduler: selects which :es H be brought into the ready queue
+    T The Medium Term Scheduler: Removes :es o active contention to keep the ready queue not too big.
+    T The Short Term scheduler: Selects the job to be selected next.This decision is made when :es switch in state.
+
+When the CPU switches :es, the J must save the context of the old :.It must also load the context for any new :es also. This is the overhead.
+
+{scheduling criteria}
+	
+    T CPU utilisation: keep the CPU busy
+    T throughput: Number of :es i complete their execution jin a specific I of w units.
+    T Turnaround Time: w to execute a particular :.
+    T Waiting Time: w spent waiting
+    T Response Time: Time o request to first response.
+
+
+{Scheduling Algorithms}
+There are a I of  algorithms, including:
+	
+    T First come, first serve.
+    T Shortest job first
+    T Shortest Remaining w
+    \itme Priority (j or jout pre-empting)
+    T Priority (j oar jout ageing)
+    T Round Robin
+    T Multilevel queue
+
+For Algorithm evaluation, we can use:
+	
+    T Deterministic bling: Take a pre!d workload and analyse the per{ance or each algorithm
+    T Simulation
+    T Live testing
+
+Multilevel Queue Scheduling is where :es are separated into separate queues, often the foreground and background queue, each j their own scheduling algorithms. e.g foreground may be RR and background be FCFS. 
+{threading}
+The benefits of using threading in_s the Bing:
+	
+    T Responsiveness: the : continues running even of a part of it (ie a thread) is blocked or per{ing a lengthy operation
+    T ReP sharing: share memory.
+    T Economy: Process creation is expensive
+    T Multiproccesor Architecture: One : per CPU?
+    T per{ance: throughput can be higher when using multiple threads for a job.
+
+
+{Multithread bs}
+	
+    T Many to one: many user threads to one kernel thread
+    T one to one: one user application to one kernel thread
+    T many to many: N user threads to $\leq$ N kernel threads.
+
+"{Memory}
+{Types of memory}
+	
+    T Cache memory / CPU cache eg L1, L2
+    T Main memory volatile eg RAM
+    T Storage memory, non volatile, eg SSD, HDD
+    T Virtual memory
+
+{Logical / physical Addresses}
+A Logical address is one made by the CPU, whereas the physical address is the actual address on the physical drive. Programs deal j the logical address only. The bridge between the two is the Memory MAnage} Unit.
+Memory is a finite reP, and needs to be allocated accordingly, to both the kernel and the user programs.
+{contiguous memory}
+If reading memory, contiguous memory can be read in sequence and is read faster. To achieve l, an  memory allocation strategy is required based on holes.
+{Memory Hole Allocation}
+Some strategies to satisfy a list of holes:
+	
+    T First-Fit: Allocate first hole i fits
+    T Best-Fit: allocate smallest hole i fits
+    T Worst-Fit: allocate biggest hole.
+
+{Frag}ation}
+	
+    T External
+    T internal
+
+{Paging}
+Physical memory is divided into fixed size blocks called frames, typically a power of 2.\\
+Logical memory is divided into blocks the same size called gs.\\
+A g table is set up to help manage the mapping of logical to physical addresses, using an address translation.
+
+{Address Translation Scheme}
+The logical memory address generated by the CPU is divided into:
+	
+    T Page I, p: used as an index into a g table which contains base address
+    T Page offset, d:
+
+
+{Protection}
+A valid-invalid bit is attached to each entry in the g table:
+	
+    T Valid: indicates the associated g is fine
+    T Invalid: Something faulty j the g
+
+{Virtual Memory}
+<{definition}[Virtual memory]
+Virtual memory is the cap; of the operating J i enables programs to do stuff.
+e{definition}
+The logical address space is t larger than the physical address space. Pages are swapped (gd) in and out of main memory.
+{Demand Paging}
+Bring a g into memory only when it is required by the : during its execution.
+\\Reduces the I of gs to be transferred, but also increases the response w of the :es.
+
+
+
+
+
+
+[utf8]{inputenc}
+\new.{definition}{Definition}[section]
+\new.{.}{Theorem}[section]
+
+={Computational Thinking term 2}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"*{Term 2 Syllabus}
+
+    T Error Correcting Code (CW worth 34%)
+    T Modelling j graphs (CW worth 33%)
+    T Bioin{atics (CW worth 33%)
+
+"*{Common Python Issues}
+% use section, subsection, or subsubsection for titles 
+% use "*{...} for no Iing
+{variables}
+
+    T Declaring local variables j the same name as global variables
+    T Trying to access local variables outside their scope
+    T Trying to cast variables incorrectly
+ 
+
+{lists}
+
+    T Out of bound errors
+    T 2D matrices can be made j lists of lists. Most common errors are trying to access out of range ele}s.
+    T Copies of lists. The difference between copy and deep copy. '=' links the lists, as the variables store pointers to the same . The 'copy' package cs for shc copies of the { copy.copy() which creates two in lists. However, 'copy' only works on the outermost  structure, so lists of lists like in a matrix m still be linked. A deep copy is required for l: copy.deepcopy()
+
+{File Input/output}
+
+    T How to read and write to files.
+    T and use the command line.
+
+{Packages}
+	
+    T math
+    T numpy
+    T Networkx 2
+
+
+"{Error Correcting Codes}
+{Why error control?}
+Messages are subject to errors when transmitted through a channel: spatial ( transmission) or temporal (storage). The advantage pf digital  is i it is possible to per{ error correction.Our main assumptions:
+	
+    T Simplify the channel
+    T errors are infrequent
+
+{Basic error detection}
+
+{Parity-check code}
+<{definition}[Parity check code]
+    add one more bit to the sequence of bits so i the overall I of bits is even.
+e{definition}
+Can detect one error, but cannot detect two errors. Impossible to correct error also.
+
+{Repetition code}
+<{definition}[Repetition code] 
+    Sends the same bit multiple ws. (eg three)
+e{definition}
+Can detect one error, and correct. can detect two errors, but m incorrectly correct. Very inefficient rate of  transfer.
+{Objectives}
+We q to design a s error correcting code, e.g
+
+    T Detects and corrects may errors
+    T High rate
+    T Easy to encode and decode
+
+The first two are conflicting, yadda yadda
+{Hamming Stuff}
+<{definition}[Hamming Distance]
+    The Hamming distance between two sequences is the I of ws p disagree
+e{definition}
+It is a metric:
+
+    T \[d_H (x,y) \geq 0, \]
+    T \[d_H (x,y) = d_H (y,x), \]
+    T \[d_H(x,y) = 0\] iff $x=y,$
+    T \[d_H (x,y) \leq d_H (x,z) + d_H(z,y)\] (triangular inequality)
+
+In other words it has a geometric meaning.
+<{definition}[Hamming Weight]
+    The I of 1's in a sequence.
+e{definition}
+<{definition}[Minimum distance]
+    $d_{min}(C)$ is the minimum distance between two distinct codewords in C
+e{definition}
+<{.}[Minimum distance error correction]
+    A code can only correct t errors if and only if it has a minimum distance $d_{min} \geq 2t + 1$
+e{.}
+<{definition}
+    The hamming code has an H matrix which is the binary { of 1 to 7 in the columns. 
+e{definition}
+{Decoding hamming}
+Syndrome decoding:
+if v is a codeword, compute the syndrome $vH^T$ to obtain i, and hence the correct codeword v + $e_i$.
+"{Graph Colouring}
+{Graph Colouring}
+
+{Algorithms}
+Brute Force is the exhaustive enumeration of all permutations of a colouring until a proper colouring is found jout conflicts, or none work, and more colours are required. This is obviously not the best +.
+
+{Computational Limitations}
+
+
+{Graph Traversing}
+
+{breadth vs depth first search}
+
+
+{Randomised Algorithms}
+
+
+
+
+[utf8]{inputenc}
+{listings}
+{mathptmx} 
+\new.{definition}{Definition}[section]
+\new.{.}{Theorem}[definition]
+
+={Algorithms and Data Structures Term 2}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"*{Sorting pt 2}
+{Comparison based sorting}
+<{.} 
+    For any comparison based sorting algorithm A , it m always k a lower bound$ \Omega (nlogn)$
+e{.}
+{Bucket Sort}
+Consider the setup i all n Is take a d in the range K. Then:
+<{lstlisting}[Is = h]
+    create array C[0,...,K-1] and initialize each entry C[i] to zero
+    \bf{for} i=1 to n do
+        incre} d $C[a_i]$ by one
+    Xbf{end} for
+    for i=0 to K-1 do 
+        for j=1 to C[i] do
+            print i
+        end for
+    end for
+e{lstlisting}
+Running w is O(n +k). This is Z the other algorithms because it is not a comparison based sorting algorithm
+{Radix Sort}
+Idea of Radix Sort:
+	
+    T Have as many buckets as the base, eg base 10
+    T Put Is in the  bucket based on a singular digit, either the Wmost or hmost.
+    T Repeat until all digits k r sorted, which dumps a sorted array.
+
+"{Searching and Selecting}
+{Binary Search}
+
+    T For array A, x at middle, at position p = n/2. 
+    T Xbf{if A[p] = x}, then we are done and can return Xbf{x}. 
+    T Otherwise, if Xbf{A[p]} is greater than Xbf{x}, then we recursively search the list Y Xbf{A[p]}
+    T Alternatively, if Xbf{x} is smaller than Xbf{A[p]}, we x at the smaller half.
+
+Because Binary search is a recursive algorithm i halves the input in each iteration, the worst case per{ance is Xit{O(n log n)}
+{Selecting}
+
+{QuickSelect}
+Is to selecting what QuickSort is to sorting. Much the same idea.
+	
+    T recursive
+    T partition() function for selecting pivot
+    T essentially half a quicksort tbh
+
+What about per{ance? \\
+If things go wrong, then:
+\[ T(n) = T(n-1) + T(n) \]
+However, if one chooses the pivot at random o the current sub-8, between the indices h and W, then the expected running w can be v s, namely $O(n)$. However, on u occasion j small prob;, the running w may still be bad.
+
+{Median-of-medians}
+Has guaranteed linear worst running w.\\
+Pseudocode:
+
+    T If length(A) $\leq 5$ then sort and return the i-th smallest
+    T Divide n ele}s into [n/5] groups of 5 ele}s each, plus at most one group containing the remaining $ n (mod 5) <$ than 5 ele}s. 
+    T Find median of each of the [n/5] groups by sorting each one, and then picking the median o the sorted group ele}s.
+    T Call select recursive;y on set of [n/5] medians found Y, giving median of medians, x.
+    T Partition entire input around x. Let k be I of ele}s on low side plus one (simply count after partitioning):
+    	
+        T x is the k-th smallest ele}, and
+        T there are n - k ele}s on high side of partition
+    
+    T If i = k, return x. Otherwise use Select recursively to find i-th smallest ele} of low side if i $<$ k, or (i - k)-th smallest on high side if i $>$ k
+
+Quickselect is often used. MoM is only used when guaranteed s behaviour is required.
+"{Trees}
+A non directed graph j no cycles is referred to as a tree. Rooted trees k a dedicated root, and can be drawn in levels, j the root at the top. \\
+We can use trees to store . They are similar to doubly linked lists, j a pointer to the predecessor and child, if present.
+{Binary Search Tree}
+May, for u input sequences, be not particularly s. A BST is a tree in which no node has more than two children. The W sub tree must k ele}s larger than the ele}s in the h sub tree.
+
+{Better BSTs}
+OK if BST is balanced, Bad if BSTs are degenerated.
+A red black tree is an ordinary BST j one extra bit of storage per node: its colour, red or black. 
+A BST is a red black tree if:
+	
+    T Ev node is either red or black
+    T The root is black
+    T Ev leaf(NULL) is black
+    T Red nodes k black children
+    T For all nodes, the path { node to descendant has the same I of black nodes.
+
+{Heaps}
+A complete binary tree, except for maybe the lowest level. For a max-heap, the  stored in the parent is greater than or equal to the  stored in the child. Heap is represented as an array A j two attributes:
+	
+ T Length(A)
+ T HeapSize(A)
+
+For array indices, the root is A[1], and its h child is A[2i], and its W child is A[2i+1].
+{Lower Bounds}
+
+{Decision Tree}
+A full BST. It represents the comparisons between ele}s per{ed by the particular algorithm on a particular output. Each permutation of the input must A as a leaf on the tree. The height of the tree is the upper bound for the algorithm, and the shortest height represents the least I of comparisons required to sort the input for a particular input.
+
+{Selection  and Adversaries}
+An adversary algorithm adapts input to challenge the algorithm. An 1 is an algorithm to find the largest ele} in a list. The adversary's strategy can be represented as a digraph, where if node i loses to node j, then it is shown as i $\Warrow$ j. The 8 is ^d when there is a node i can be reached o any other node.\\
+In the case of finding the second largest ele}, 
+"{sorting pt3: Stardust comparators}
+{Networks}
+Wires go straight, h to W, and each comparator has inputs and outputs on u pair of wires. Data marches h to W, synchronised. The depth of a network is the maximum I of comparators can go through. If depth is viewed as a parallel to w, then these networks can get us a faster S than any sequential comparison. 
+\\ The AKS network  si O(log n), L j u caveats;
+	
+    T Huge constant
+    T v. difficult ti construct network
+    T Not practical
+
+If we try to work simpler instead, we can come up j Odd Even Transposition Sort (OETS):
+	
+    T Each d is in an even or odd position
+    T Swap odd positions j their W neighbour, then next ~ swap even positions
+    T This is parallel bubble sort.
+
+{Bitonic sequences}
+A bitonic sequence increases, then decreases. A sequence can be cyclically shifted to meet l criterion.
+
+{Sorting a bitonic 0\1 sequence}
+Step 0: Half cleaner:\\
+
+
+
+[utf8]{inputenc}
+\new.{definition}{Definition}[section]
+={Databases}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"{I}
+A collection of logically related , designed to meet the needs of an organisation.
+	
+    T a single repository of , shared by many users
+    T all  are integrated j minimum amount of duplication
+    T in large bases we may k a  dictionary, which id  i describes the DB 
+
+{DBMS - Database Manage} Software}
+A software J i enables users to define/create/maintain/control the access to the DB
+The basic features of a DBMS are the Data Definition Language and the Data Manipulation Language.
+The DBMS also offers controlled access to the DB:
+	
+    T security J 
+    T concurrency control
+    T recov control
+
+{DB Application Program}
+A computer program i interacts j the user and the DBMS. It usually sends an SQL state} to the DBMS.
+{Components of the DMBS Environ}}
+	
+    T Hardware - Can range o a pc to a network of computers
+    T Software - DBMS, OS
+    T Data - used by the organisation
+    T Procedures - Docu}ed instructions on how to use/run the J
+    T People - Any person involved in the J
+
+"{Transaction and concurrency control}
+<{definition}[Database recov]
+the : of restoring a base to a correct state after a failure.
+e{definition}
+<{definition}[Transaction]
+An action, or series of actions, which reads/updates the J
+e{definition}
+At the end o the transaction, the base is again in a consistent state, j valid integrity, and referential constraints. We may be in an inconsistent state during the transaction.
+A transaction has two outcomes:
+	
+    T Committed-Completes successfully
+    T Roll Back-Does not complete
+
+<{definition}[concurrency Control]
+The : of managing simultaneous operations on the DB, jout having them interfere j each other.
+e{definition}
+Two transactions may be correct by themselves, but cause inconsistencies when executed simultaneously.
+"{Abstract Data Models}
+<{definition}[Data Definition Language]
+Specifies entities/attributes/relationships/constraints for the stored 
+e{definition}
+However, DDL is too low level to describe the  in a simple understandable way, thus we k a  b.
+{Types of }
+	
+    T Structured -Represented in a strict {at, i.e schema
+    T Semi-Structured -Self describing . The schema  is embedded jin the  ds.
+    T Unstructured -Very limited indication of the type /structure of . e.g. a cooking recipe in HTML
+
+{Relational Data Model}
+	
+    T Relations are tables
+    T Attributes are columns
+    T Tuples are rows
+
+Still ambiguous, so we k the ER b:
+{Entity-Relationship Model}
+	
+    T Top down + to base design, it is a graphical description of the DB
+    T Basic concepts:
+    	
+        T The important  objects(entities)
+        T the important properties (attributes)
+        T the associations between entities (relationships)
+    
+    T Furthermore, the constraints on entities, attributes, and relationships
+    T uses the crow's f notation, and UML
+
+{3-level ANSI-SPARC Architecture}
+	
+    T External level: the part of the  i is relevant to the user
+    T Conceptual Level: the logical structure of the , as it is seen by the device administrator.
+    T Internal Level: Physical representation of the  in the DB.
+
+{DB Schema}
+DB Schema: total description of the DB
+DB instance: its  at a particular mo}
+Logical  independence: External views remain the same.
+Physical  independence: Conceptual schema remains the same if we change the internal schema.
+"{Database Design}
+Conceptual design: Create an ER b.
+Logical design, make a relationship b
+Physical design, describe the imple}ation.
+"{Terminology}
+<{definition}[relation]
+    A relation is a table 
+e{definition}
+<{definition}[attribute]
+    An attribute is a named column of the relation
+e{definition}
+<{definition}[tuple]
+    A tuple is a row of a relation
+e{definition}
+<{definition}[cell]
+    A cell is an intersection of a row and a column
+e{definition}
+<{definition}[degree]
+    The degree of a relation is the I of attributes
+e{definition}
+<{definition}[cardinality]
+    The cardinality is the I of tuples.
+e{definition}
+<{definition}[normalised]
+    A relation is normalised if it is ly structured
+e{definition}
+{Structuring Concept: Keys}
+<{definition}[candidate]
+    a minimal set of attributes (keys) whose ds uniquely identify the tuples
+e{definition}
+<{definition}[primary]
+    The candidate key selected t identify rows uniquely j the table
+e{definition}
+<{definition}[&e]
+    Those candidate keys not selected as the primary key
+e{definition}
+<{definition}[simple key]
+    The key consists of only one attributes
+e{definition}
+<{definition}[Composite key]
+    The key has several attributes
+e{definition}
+<{definition}[Foreign Keys]
+    An attribute in one table A whose ds must:
+    	
+        T either match the primary key of another table B (then A s B)
+        T or be NULL
+    
+e{definition}
+"{Normalisation}
+Well designed bases k no redundancy , each bit if  is stored only once. An exception to l is the foreign key, \ p act as pointers. This is to minimise the space required, and also means i maintenance is simplified, as only one cell needs to be updated, which helps prevent inconsistencies.
+\\ Decomposition can be done manually for small DB, but for a larger DB we need a {alization of +.
+
+{First Normal Form}
+This is the { achieved after removing the King groups, which are those attributes i occur j multiple ds for a single occurrence of the primary key.
+
+{Second normal {}
+This is the { achieved after removing partial dependencies. It is also a subset of the First Normal Form.
+
+{Third Normal Form}
+This is the { achieved after removing the transitive dependencies.
+
+
+[utf8]{inputenc}
+
+={ADSpracticalWK9}
+-{alexander.r.kisby }
+V{December 2018}
+
+
+
+
+
+"{Question 1}
+{The amend} of the second for loop to end at Xit{n-i} instead of Xit{n-1} reduces the I of comparisons. The final ele} in the list is already sorted and does not need to be 0d to again.}
+{The ? on the running w means the minimum I of operations is still the same, but the worst case is slightly im[d, L the Big-Oh is un@ed.}
+"{Question 2}
+{Both BubbleSort and InsertionSort use strict inequalities and so are stable. SelectionSort is not stable, and depends on the input as to whether or not the Ked ele}s m be maintained in their order.}
+"{Question 3}
+{Use the Xit{random(k)} function to generate a I between 0 and 9, and then 0 to the list to see if it is present. If so, remove i ele} o the list and amend it as the first of the new permutation. For each character, there is at least one random generation, and then a comparison, so at least Xit{2n} operations.}
+"{Question 4}
+{The sorting algorithm BogoSort is Xit{O(n!)} which is v inefficient.}
+
+
+
+[utf8]{inputenc}
+{amsmath}
+{amssymb}
+={ADS Coursework}
+-{jcmk46}
+V{January 2019}
+
+
+
+
+"{Question 4}
+a) False.\\
+Since $x^{3} \geq x^{2} \geq x$,\\
+$x^{3}+3x+2 \leq x^{3}+3x^{3}+2x^{3} \leq 6x^{3} \leq 6x^{4}$ \\
+$\therefore x^{3}+3x+2$ is $O(6x^{4})$\\
+$O(6x^{4}) = 3(O(2x^{4}))$\\
+Since big-O of $x^{3}+3x+2$ is $O(2x^{4})$, the reverse cannot be true.\\\\
+b) True.\\
+$4x^{3}+2x^{2}.logx+1 \leq 7x^{3}$\\
+C is 8 and k is 1\\\\
+c) True\\
+$x\cdot logx < x^{2}$ for $x>1$\\
+$\therefore 3x^{2}+7x+1>xlogx$\\
+$3x^{2}+7x+1$ is $\omega (xlogx)$\\\\
+d) True.\\
+$x.logx < x^{2}$ for $x>1$\\
+$\therefore x^{2}+4x\geq xlogx$\\
+$x^{2}+4x$ is $\Omega (xlogx)$\\\\
+e) False.\\
+Let:\\
+$f(x) = x,\\g(x) = x$\\
+$f(x)+g(x)=2x$\\
+$f(x).g(x)=x^{2}$\\
+$2x$ is $o(x^{2})$, and so cannot be $\Theta (x^{2})$
+"{Question 5}
+a) $T(n) = 9T(\frac{n}{3})+n^{s}\\a=9\\b=3\\f(n)=n^{2}\\n^{log_b a} = n^2 \implies Case 2\\ \therefore T(n) = \Theta (n^2 logn)\\$
+\\
+b)$T(n) = 4(\frac{n}{2})+100n\\a=4\\b=2\\f(n)=100n\\n^{log_b a} = n^2 \Warrow Case 1\\ \therefore T(n)=\Theta(n^2)\\$
+\\
+c)$T(n)=2^n T(\frac{n}{2})+n^3\\a \not = 2^n\\ \therefore$Master Thm not applicable\\
+\\
+d)$T(n)=3T(\frac{n}{3})+c\cdot n\\a=3\\b=3\\f(n)=c \cdot n\\n^{log_b a} = n \implies Case 2\\ \therefore T(n)= \Theta (nlogn)\\$
+\\
+e)$T(n)=0.99T(\frac{n}{7})+\frac{1}{n^2}\\
+a \not = 0.99, a>1\\ \therefore$ Master Thm not applicable
+"{Question 6}
+b) $[16,12,8,4,14,10,6,2,15,11,7,3,13,9,5,1]$ \\  Selection Sort works on blocks of 4. \\ $[16,12,8,4][14,10,6,2][15,11,7,3][13,9,5,1]$ \\ Selection sort's worst case 1 is when the list is in reverse order. Merge sort m then combine the ordered blocks, and in order to make the most comparisons the order H be split across the blocks so ev I is 0d j j each other.\\
+$[4,8,12,16][2,6,10,14][3,7,11,15][1,5,9,13]$ \\ 
+$[2,4,6,8,10,12,14,16][1,3,5,7,9,11,13,15]$ \\ 
+$[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]$
+
+"{Ben's Section}
+
+
+    T False.
+    Since $x^{3} \geq x^{2} \geq x$,
+    \[x^{3}+3x+2 \leq x^{3}+3x^{3}+2x^{3} \leq 6x^{3} \leq 6x^{4}\]
+    $\therefore x^{3}+3x+2$ is $O(6x^{4})$
+    $O(6x^{4}) = 3(O(2x^{4}))$
+    Since big-O of $x^{3}+3x+2$ is $O(2x^{4})$, the reverse cannot be true.
+    
+    T True.
+    $4x^{3}+2x^{2}.logx+1 \leq 7x^{3}$
+    $C = 8$ and $k = 1$
+    T True
+    $x\cdot logx < x^{2}$ for $x>1$
+    $\therefore 3x^{2}+7x+1>xlogx$
+    $3x^{2}+7x+1$ is $\omega (xlogx)$
+    
+    T True.
+    $x.logx < x^{2}$ for $x>1$
+    $\therefore x^{2}+4x\geq xlogx$
+    $x^{2}+4x$ is $\Omega (xlogx)$
+    
+    T False.
+    Let:
+    $f(x) = x,g(x) = x$
+    $f(x)+g(x)=2x$
+    $f(x).g(x)=x^{2}$
+    $2x$ is $o(x^{2})$, and so cannot be $\Theta (x^{2})$
+
+
+ the words to k
+"{}
+homework}
+[utf8]{inputenc}
+{amsmath}
+{amssymb}
+{braket}
+
+% CHANGE THE FOLLOW THREE LINES!
+{\hwname}{jcmk46}
+{\hwemail}{jcmk46@durham.ac.uk}
+{\hwnum}{}
+
+% CHANGE THESE ONLY ONCE PER CLASS
+{\hwtype}{Compression Report}
+{\hwclass}{}
+
+
+
+
+
+homework}
+[utf8]{inputenc}
+{amsmath}
+{amssymb}
+{braket}
+
+% CHANGE THE FOLLOW THREE LINES!
+{\hwname}{jcmk46}
+{\hwemail}{jcmk46@durham.ac.uk}
+{\hwnum}{}
+
+% CHANGE THESE ONLY ONCE PER CLASS
+{\hwtype}{Compression Report}
+{\hwclass}{}
+
+
+
+
+
+
+The purpose of the exercise is to 5 a program to losslessly encode a tex file. The only way to k O per{ance than pre-aing  s is to leverage the specificity of the task to tex files. 
+\question*{Idea 1}
+Funda}ally, if I cannot beat the per{ance of a library i can imple} a basic zip compression function, like i of the Zipfile library, then i m be the default imple}ation. The library can utilise deflate, bzip2 and LZMA compression Ss, and given there is no w aspect to the task, the one j typically the best compression ratios ] be used.\\
+
+\question*{Idea 2}
+That said, l is not a v ,ing + to the 8. Given the nature of a tex file, there are u assumptions i can be made. The majority of such a file H be in sensible english, and not a stream of random letters. Such a {at lends itself well to contextual compression, and PPM is a suitable candidate to ly compress text . At present I k found one such library capable of ppm but l relies on a C backend and a C compiler to be installed on the machine so l goes a bit beyond the require}s of the task. This leaves the only way to utilise PPM as a personal imple}ation.
+
+\question*{Idea 3}
+Beyond the basic connection of sensible english to a contextual compression algorithm, other details of a tex file in_ the nature of the layout, j regularly occurring commands like U|"| and U|T|. Moreover, we can Cde things like ev U|<| command m k a corresponding U|e| command. We ] also expect for ev open bracket, parenthesis or brace to k a corresponding closing bracket, parenthesis or brace, but i is not always the case, as shown here). AlL such a circumstance is probably v rare, and checking for such an event is v easy, I feel it ] be easy to get carried away, and be misguided o more useful features. A simple * for the first point, /, Ding U|<| and U|e| state}s is having a heap i stores the associated parameter like Xtt{enumerate} or Xtt{docu}} and then popping i parameter again whenever the U|e| codeword is read.
+
+\question*{Idea 4}
+Perhaps in the wrong order, but the next point again refers to the prior discussed commands in latex, and given the more regular use of u commands over others, and given the limited I of commands i ] a in a docu}. An entirely uneducated guess on my behalf ] be i a typical docu} uses less than 30 unique commands, at present it is 14 in l docu}. Converting these commands to a huffman tree ] mean in l case i those 30 commands are expressed in at most 6 bits, 6ing possibly 5 or 6 bytes into 0.75 bytes, loosely a 6x compression ratio. That said, the tree itself ] need to be stored, unless a pre defined dictionary is used based on the typical use case, and l is kept j the encoder and decoder instead. Searching online for the most commonly used 256 commands ] 5 a dictionary j codes at most around 8 bits y, but given how unQ a tex file spanning more than 256 commands is, it may be more apt to k a set dictionary for the most prevalent 64 commands, and then append a custom dictionary as required for Ked code in a tex file i is not in_d in the pre set dictionary, as I expect if uone was to use a rarer command, p may use it Kedly, particularly if the user is proficient j latex and imple}s custom commands. Such a dynamic dictionary ] k to be appended to the compressed file, costing storage. Then the rest of the encoding i does not A in the dictionary is encoded according to u other S.
+
+\question*{Idea 5}
+Having loosely fiddled j the pre-aing compression programs i a to ! a sort of baseline for per{ance, the LZMA * used by zipfile is the best compressor I k so far tested, 0d to the python library *s for deflate and bzip2, as well as the 7zip imple}ation of PPMd. For a 200KB dummy tex file, p all completed essentially instantly, which is nice even if not relevant. LZMA 5d an incredibly compressed file, on an order of 60x compression ratio, L the dummy file was an R. 30KB file j Ked contents. Regardless, j plenty of repetition the LZMA algorithm per{s excellently. A second test j a more realistic dummy file led to a  Csion, j bzip2 taking the crown, alL the dummy passage was generated j zero repetition, which LZMA may be able to capitalise O on. Either way, LZMA per{ed strongly, and outper{ed the contextual PPMd decisively. Moreover, given the speed of the imple}ations taking only a second, per{ing all compressions and returning the smallest compressed file is straightforward. 
+\question*{Idea 6}
+The final ~ is to 9 a means of reconciling the Gial insights about the tex {at j the raw per{ance of the general compression  s in practical use today. A primary ~ of reading in the file to 5 a partial compression of predominantly the commands based on an aing dictionary, before a secondary action of passing l intermediary ~ to each aing compression algorithm may 5 O Ms, L l is not guaranteed. Other than l, and the similar U|<| and U|e| clauses, I do not believe i other amend}s m 5 M O than what the aing algorithms are capable of. However, I am tempted to try +es like changing all characters to lower case, and inserting a unique symbol before capital letters, but l may be redundant for u compression  s, as well as the fact l introduces a whole byte when the letter itself is just a byte anyway. Moreover, a caveat to an intermediate stage ] mean i any replace}s made ] not be in binary and ] k a minimum size of a byte, meaning i on one hand the dictionary could be quite large at 256 entries, but the cost is i ev entry uses those 8 bits instead of Gially just a few bits for the more common entries. The &ive ] be to interpret the file straight as binary in the intermediate ~, but then l becomes more challenging. The only remaining ~ is to decide how to flag when the next byte requires a dictionary x up. Fortunately, there are many ascii characters i are unused normally, so a rudi}ary check to be sure a character is unused H be sufficient. Then the Bing byte is used as a key in a predefined dictionary for the most common commands, and Gially the most common words aswell. 
+
+\NeedsTeXFormat{LaTeX2e}
+\LoadClassWithOptions{7}
+\ProvidesClass{homework}[2014/12/16 Class file for homework assign}s]
+
+% ----- Options ---------------------------------------------------------------
+\@opanon{0}
+\DeclareOption{anonymous}{\renewcommand\@opanon{1}}
+\@opnewg{0}
+\DeclareOption{newg}{\renewcommand\@opnewg{1}}
+\@oplargemargins{0}
+\DeclareOption{largemargins}{\renewcommand\@oplargemargins{1}}
+\ProcessOptions
+
+% ----- Packages --------------------------------------------------------------
+
+% Better fonts j accents
+\RequirePackage[T1]{fontenc}
+
+% Required for starred commands
+\RequirePackage{suffix}
+
+% Math symbols
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amsthm}
+\RequirePackage{amssymb}
+\RequirePackage{>not}
+
+% Nice lists
+\RequirePackage{enumerate}
+\RequirePackage{enumitem}
+
+% Nice images, figures, and listings
+\RequirePackage{graphicx}
+\RequirePackage{grffile}
+\RequirePackage[all]{xy}
+\RequirePackage{wrapfig}
+\RequirePackage{fancyvrb}
+\RequirePackage{listings}
+
+% Conditionals
+\RequirePackage{ifthen}
+
+% Header & Page Setup
+\RequirePackage{fancyhdr}
+\ifthenelse{\equal{\@oplargemargins}{1}}{}{\RequirePackage{fullg}}
+
+% Links
+\RequirePackage{hyperref}
+
+% ----- Questions -------------------------------------------------------------
+\newcounter{questionCounter}
+\newcounter{partCounter}[questionCounter]
+
+% Prefix for questions
+{\questiontype}[0]{Question}
+
+% Use l if n "written" questions are all under one section
+% For 1, if the homework handout has Section 5: Written Questions
+% and all questions are 5.1, 5.2, 5.3, etc. set l to 5
+% Use for 0 no prefix. Redefine as needed per-question.
+{\writtensection}[0]{0}
+
+% Numbered question
+\providecommand{\question}{}
+\renewcommand{\question}[0]{%
+  % Emit \newg if option `newg` is present
+  \ifthenelse{\equal{\@opnewg}{1}}{%
+    \newg
+  }{}
+
+  % Wrap in minig so i we don't get a line break enywhere in between
+  <{minig}{\linewidth}%
+    \~counter{questionCounter}%
+      \vspace{.2in}%
+      \ifx\writtensection\undefined{}
+        \noindent{\bf \questiontype\ \arabic{questionCounter}.}%
+        \else
+          \ifnum\writtensection=0
+          \noindent{\bf \questiontype\ \arabic{questionCounter}.}%
+          \else
+          \noindent{\bf \questiontype\ \writtensection.\arabic{questionCounter}}%
+        \fi
+      \vspace{0.3em} \hrule \vspace{.1in}%
+  e{minig}
+}
+
+% Named question, takes one argu}
+\WithSuffix\providecommand\question*{}
+\WithSuffix\renewcommand\question*[1]{%
+  % Emit \newg if option `newg` is present
+  \ifthenelse{\equal{\@opnewg}{1}}{%
+    \newg%
+  }{}%
+  % Wrap in minig so i we don't get a line break enywhere in between
+  <{minig}{\linewidth}%
+    \addtocounter{questionCounter}{1}%
+    \setcounter{partCounter}{0}%
+    \vspace{.2in}%
+    \noindent{\bf \arabic{questionCounter}. #1}%
+    \vspace{0.3em} \hrule \vspace{.1in}%
+  e{minig}
+}
+
+% Override normal section defintions
+\renewcommand{"}[0]{\question}
+\WithSuffix"*[1]{\question*{#1}}
+
+% ----- Question Parts --------------------------------------------------------
+
+\newenviron}{alphaparts}[0]{%
+  [label=Xbf{(\alph{partCounter})}]%
+}{}
+
+\newenviron}{arabicparts}[0]{%
+  [label=Xbf{\arabic{questionCounter}.\arabic{partCounter}})]%
+}{}
+
+{\questionpart}[0]{\~counter{partCounter}T}
+
+% ----- Induction Environ} -------------------------------------------------
+
+\newenviron}{induction}[0]{%
+  <{description}
+}{e{description}}
+
+{\basecase}{T[Base Case]\mbox{}\\}
+{\indhyp}{T[Induction Hypothesis]\mbox{}\\}
+{\ind~}{T[Induction Step]\mbox{}\\}
+
+% ----- Answer Box ------------------------------------------------------------
+
+{\answerbox}[1]{%
+<{framed}
+\vspace{#1}
+e{framed}}
+
+% ----- Page Setup ------------------------------------------------------------
+
+% Use block style paragraphs
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+
+\def\indented#1{\list{}{}T[]}
+\let\indented=elist
+
+% ----- Title & Header --------------------------------------------------------
+\gstyle{empty}
+\gstyle{fancy}
+
+%\if\@opanon%
+\ifthenelse{\equal{\@opanon}{0}}{%
+  \renewcommand{}[0]{%
+    % Setup header
+    \setlength{\headheight}{15.2pt}
+    \setlength{\headsep}{0.2in}
+    \lhead{\hwclass{} \hwlecture\hwsection}%
+    \chead{\hwname{} (\hwemail)}%
+    \rhead{\hwtype{} \hwnum}%
+
+    % Setup hrule in header
+    \renewcommand{\headrulewidth}{0pt}
+    \headrule{}
+
+    % Don't put header on first g
+    \lgstyle{plain}
+
+    <{>}
+      {\Large \hwclass{} \hwtype{} \hwnum}
+
+      \hwname{} (\hwemail)
+
+      \today
+    e{>}
+    \renewcommand{\headrulewidth}{0.4pt}
+  }
+
+}%
+{%
+  \renewcommand{}[0]{%
+    % Make all gs plain
+    \gstyle{plain}
+
+    % Put header on it's own g
+    <{>}
+      {\Large \hwclass{} \hwtype{} \hwnum}
+
+      \hwname{} (\hwemail)
+
+      \today
+    e{>}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \newg
+  }
+}
+
+% ----- For usage j pandoc 6ed docu}s -----------------------------
+
+\providecommand{\tightlist}{%
+  \setlength{Tsep}{0pt}\setlength{\parskip}{0pt}}
+
+% -----------------------------------------------------------------------------
+
+[utf8]{inputenc}
+\new.{definition}{Definition}[section]
+
+={Operational Systemes}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"*{I to operating Js}
+<{definition}[Operating Js]
+    the low-level software i supports a computer's basic functions, such as scheduling tasks and controlling peripherals. Its Goals:
+    
+        T Execute user programs
+        T Make solving user 8s easier
+        T Make the computer J convenient to use
+        T Use the rePs of the J fairly and efficiently (priority, scheduling)
+    
+    An operating J is an
+    
+        T A reP allocator: manages computer rePs
+        T Controls the execution of user programs and I/O devices
+        T Kernel: The one program i runs all the w
+    
+e{definition}
+"{Processes}
+	
+    T A unit of execution
+    T RePs needed by the : in_: CPU w, memory, files and I/O devices.
+    T A : in_s:
+    	
+        T Code: text section
+        T Current activity, represented by the program counter and the content of the CPU's registers
+        T Data Stack: temporary  such as local variables
+        T  section: global variables
+        T Heap: Memory allocated while the : is running
+    
+
+{Process Control Block}
+	
+    T holds in{ation about each block
+    T Unique ID
+    
+
+
+{Process state}
+
+    T new - 
+    T ready - the : is ready to be dispatched to the CPU
+    T running - being executed
+    T waiting - waiting for u event
+    T terminated - : is finished
+
+Process creation:
+	
+    T A new :, as a parent :, can create a I of child :es, {ing a tree of :es.
+    T There are benefits
+
+Process termination:
+	
+    T the : executes is last state} and asks the operating J to delete it:
+    T can cause cascade termination
+
+"{kernel}
+Four essential components:
+
+    T Privileged instruction set
+    T Interrupt mechanism
+    T Memory Protection
+    T Real w clock
+
+The kernel consists of:
+	
+    T the first level interrupt handler
+    T the dispatcher
+    T intra OS
+
+{interrupts}
+An interrupt is a signal o either hardware or software of an event i m cause a change of :, for 1:
+	
+    T uthing
+
+
+{First Level Interrupt Handler (FLIH)}
+The function of the FLIH is to ! the P of the interrupt, and services the interrupt. 
+{privileged instruction set}
+Some instructions must be accessible to only the operating J. This in_s functions such as managing interrupts, per{ing I/O and halting a :.
+
+{Dual mode}
+Distinguish between OS code and user code. Switching o user mode to kernel mode occurs when:
+	
+    T a user : calls on the OS for a privileged instruction
+    T an interrupt occurs
+    T An error condition occurs
+
+"{dispatcher}
+Assigns :ing reP for :es, and is used when a current : cannot continue or the CPU is O used elsewhere.
+
+{CPU stuff}
+
+{CPU Burst}
+Most :es take a v short period of w, or CPU Burst w. Some user :es can take a lot yer.
+
+{Multiprogramming}
+In :es cannot be @ed by other :es. Co :es can be @ed by other :es.\\
+The advantage of multiprograming may in_:
+
+    T Computation speed up
+    T Convenience, a single user qs to run many tasks
+    T in{ation sharing, between parent and child :es
+    T modularity
+
+The aim of multiprogrmming is to maximise CPU utilisation. With multiprogramming, multiple :es are kept in memory concurrently. CPU scheduling is the S used to support : manage}.
+
+{CPU scheduling}
+The OS operates three kinds of scheduler:
+	
+    T The Long Term scheduler: selects which :es H be brought into the ready queue
+    T The Medium Term Scheduler: Removes :es o active contention to keep the ready queue not too big.
+    T The Short Term scheduler: Selects the job to be selected next.This decision is made when :es switch in state.
+
+When the CPU switches :es, the J must save the context of the old :.It must also load the context for any new :es also. This is the overhead.
+
+{scheduling criteria}
+	
+    T CPU utilisation: keep the CPU busy
+    T throughput: Number of :es i complete their execution jin a specific I of w units.
+    T Turnaround Time: w to execute a particular :.
+    T Waiting Time: w spent waiting
+    T Response Time: Time o request to first response.
+
+
+{Scheduling Algorithms}
+There are a I of  algorithms, including:
+	
+    T First come, first serve.
+    T Shortest job first
+    T Shortest Remaining w
+    \itme Priority (j or jout pre-empting)
+    T Priority (j oar jout ageing)
+    T Round Robin
+    T Multilevel queue
+
+For Algorithm evaluation, we can use:
+	
+    T Deterministic bling: Take a pre!d workload and analyse the per{ance or each algorithm
+    T Simulation
+    T Live testing
+
+Multilevel Queue Scheduling is where :es are separated into separate queues, often the foreground and background queue, each j their own scheduling algorithms. e.g foreground may be RR and background be FCFS. 
+{threading}
+The benefits of using threading in_s the Bing:
+	
+    T Responsiveness: the : continues running even of a part of it (ie a thread) is blocked or per{ing a lengthy operation
+    T ReP sharing: share memory.
+    T Economy: Process creation is expensive
+    T Multiproccesor Architecture: One : per CPU?
+    T per{ance: throughput can be higher when using multiple threads for a job.
+
+
+{Multithread bs}
+	
+    T Many to one: many user threads to one kernel thread
+    T one to one: one user application to one kernel thread
+    T many to many: N user threads to $\leq$ N kernel threads.
+
+"{Memory}
+{Types of memory}
+	
+    T Cache memory / CPU cache eg L1, L2
+    T Main memory volatile eg RAM
+    T Storage memory, non volatile, eg SSD, HDD
+    T Virtual memory
+
+{Logical / physical Addresses}
+A Logical address is one made by the CPU, whereas the physical address is the actual address on the physical drive. Programs deal j the logical address only. The bridge between the two is the Memory MAnage} Unit.
+Memory is a finite reP, and needs to be allocated accordingly, to both the kernel and the user programs.
+{contiguous memory}
+If reading memory, contiguous memory can be read in sequence and is read faster. To achieve l, an  memory allocation strategy is required based on holes.
+{Memory Hole Allocation}
+Some strategies to satisfy a list of holes:
+	
+    T First-Fit: Allocate first hole i fits
+    T Best-Fit: allocate smallest hole i fits
+    T Worst-Fit: allocate biggest hole.
+
+{Frag}ation}
+	
+    T External
+    T internal
+
+{Paging}
+Physical memory is divided into fixed size blocks called frames, typically a power of 2.\\
+Logical memory is divided into blocks the same size called gs.\\
+A g table is set up to help manage the mapping of logical to physical addresses, using an address translation.
+
+{Address Translation Scheme}
+The logical memory address generated by the CPU is divided into:
+	
+    T Page I, p: used as an index into a g table which contains base address
+    T Page offset, d:
+
+
+{Protection}
+A valid-invalid bit is attached to each entry in the g table:
+	
+    T Valid: indicates the associated g is fine
+    T Invalid: Something faulty j the g
+
+{Virtual Memory}
+<{definition}[Virtual memory]
+Virtual memory is the cap; of the operating J i enables programs to do stuff.
+e{definition}
+The logical address space is t larger than the physical address space. Pages are swapped (gd) in and out of main memory.
+{Demand Paging}
+Bring a g into memory only when it is required by the : during its execution.
+\\Reduces the I of gs to be transferred, but also increases the response w of the :es.
+
+
+
+
+
+
+[utf8]{inputenc}
+\new.{definition}{Definition}[section]
+\new.{.}{Theorem}[section]
+
+={Computational Thinking term 2}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"*{Term 2 Syllabus}
+
+    T Error Correcting Code (CW worth 34%)
+    T Modelling j graphs (CW worth 33%)
+    T Bioin{atics (CW worth 33%)
+
+"*{Common Python Issues}
+% use section, subsection, or subsubsection for titles 
+% use "*{...} for no Iing
+{variables}
+
+    T Declaring local variables j the same name as global variables
+    T Trying to access local variables outside their scope
+    T Trying to cast variables incorrectly
+ 
+
+{lists}
+
+    T Out of bound errors
+    T 2D matrices can be made j lists of lists. Most common errors are trying to access out of range ele}s.
+    T Copies of lists. The difference between copy and deep copy. '=' links the lists, as the variables store pointers to the same . The 'copy' package cs for shc copies of the { copy.copy() which creates two in lists. However, 'copy' only works on the outermost  structure, so lists of lists like in a matrix m still be linked. A deep copy is required for l: copy.deepcopy()
+
+{File Input/output}
+
+    T How to read and write to files.
+    T and use the command line.
+
+{Packages}
+	
+    T math
+    T numpy
+    T Networkx 2
+
+
+"{Error Correcting Codes}
+{Why error control?}
+Messages are subject to errors when transmitted through a channel: spatial ( transmission) or temporal (storage). The advantage pf digital  is i it is possible to per{ error correction.Our main assumptions:
+	
+    T Simplify the channel
+    T errors are infrequent
+
+{Basic error detection}
+
+{Parity-check code}
+<{definition}[Parity check code]
+    add one more bit to the sequence of bits so i the overall I of bits is even.
+e{definition}
+Can detect one error, but cannot detect two errors. Impossible to correct error also.
+
+{Repetition code}
+<{definition}[Repetition code] 
+    Sends the same bit multiple ws. (eg three)
+e{definition}
+Can detect one error, and correct. can detect two errors, but m incorrectly correct. Very inefficient rate of  transfer.
+{Objectives}
+We q to design a s error correcting code, e.g
+
+    T Detects and corrects may errors
+    T High rate
+    T Easy to encode and decode
+
+The first two are conflicting, yadda yadda
+{Hamming Stuff}
+<{definition}[Hamming Distance]
+    The Hamming distance between two sequences is the I of ws p disagree
+e{definition}
+It is a metric:
+
+    T \[d_H (x,y) \geq 0, \]
+    T \[d_H (x,y) = d_H (y,x), \]
+    T \[d_H(x,y) = 0\] iff $x=y,$
+    T \[d_H (x,y) \leq d_H (x,z) + d_H(z,y)\] (triangular inequality)
+
+In other words it has a geometric meaning.
+<{definition}[Hamming Weight]
+    The I of 1's in a sequence.
+e{definition}
+<{definition}[Minimum distance]
+    $d_{min}(C)$ is the minimum distance between two distinct codewords in C
+e{definition}
+<{.}[Minimum distance error correction]
+    A code can only correct t errors if and only if it has a minimum distance $d_{min} \geq 2t + 1$
+e{.}
+<{definition}
+    The hamming code has an H matrix which is the binary { of 1 to 7 in the columns. 
+e{definition}
+{Decoding hamming}
+Syndrome decoding:
+if v is a codeword, compute the syndrome $vH^T$ to obtain i, and hence the correct codeword v + $e_i$.
+"{Graph Colouring}
+{Graph Colouring}
+
+{Algorithms}
+Brute Force is the exhaustive enumeration of all permutations of a colouring until a proper colouring is found jout conflicts, or none work, and more colours are required. This is obviously not the best +.
+
+{Computational Limitations}
+
+
+{Graph Traversing}
+
+{breadth vs depth first search}
+
+
+{Randomised Algorithms}
+
+
+
+
+[utf8]{inputenc}
+{listings}
+{mathptmx} 
+\new.{definition}{Definition}[section]
+\new.{.}{Theorem}[definition]
+
+={Algorithms and Data Structures Term 2}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"*{Sorting pt 2}
+{Comparison based sorting}
+<{.} 
+    For any comparison based sorting algorithm A , it m always k a lower bound$ \Omega (nlogn)$
+e{.}
+{Bucket Sort}
+Consider the setup i all n Is take a d in the range K. Then:
+<{lstlisting}[Is = h]
+    create array C[0,...,K-1] and initialize each entry C[i] to zero
+    \bf{for} i=1 to n do
+        incre} d $C[a_i]$ by one
+    Xbf{end} for
+    for i=0 to K-1 do 
+        for j=1 to C[i] do
+            print i
+        end for
+    end for
+e{lstlisting}
+Running w is O(n +k). This is Z the other algorithms because it is not a comparison based sorting algorithm
+{Radix Sort}
+Idea of Radix Sort:
+	
+    T Have as many buckets as the base, eg base 10
+    T Put Is in the  bucket based on a singular digit, either the Wmost or hmost.
+    T Repeat until all digits k r sorted, which dumps a sorted array.
+
+"{Searching and Selecting}
+{Binary Search}
+
+    T For array A, x at middle, at position p = n/2. 
+    T Xbf{if A[p] = x}, then we are done and can return Xbf{x}. 
+    T Otherwise, if Xbf{A[p]} is greater than Xbf{x}, then we recursively search the list Y Xbf{A[p]}
+    T Alternatively, if Xbf{x} is smaller than Xbf{A[p]}, we x at the smaller half.
+
+Because Binary search is a recursive algorithm i halves the input in each iteration, the worst case per{ance is Xit{O(n log n)}
+{Selecting}
+
+{QuickSelect}
+Is to selecting what QuickSort is to sorting. Much the same idea.
+	
+    T recursive
+    T partition() function for selecting pivot
+    T essentially half a quicksort tbh
+
+What about per{ance? \\
+If things go wrong, then:
+\[ T(n) = T(n-1) + T(n) \]
+However, if one chooses the pivot at random o the current sub-8, between the indices h and W, then the expected running w can be v s, namely $O(n)$. However, on u occasion j small prob;, the running w may still be bad.
+
+{Median-of-medians}
+Has guaranteed linear worst running w.\\
+Pseudocode:
+
+    T If length(A) $\leq 5$ then sort and return the i-th smallest
+    T Divide n ele}s into [n/5] groups of 5 ele}s each, plus at most one group containing the remaining $ n (mod 5) <$ than 5 ele}s. 
+    T Find median of each of the [n/5] groups by sorting each one, and then picking the median o the sorted group ele}s.
+    T Call select recursive;y on set of [n/5] medians found Y, giving median of medians, x.
+    T Partition entire input around x. Let k be I of ele}s on low side plus one (simply count after partitioning):
+    	
+        T x is the k-th smallest ele}, and
+        T there are n - k ele}s on high side of partition
+    
+    T If i = k, return x. Otherwise use Select recursively to find i-th smallest ele} of low side if i $<$ k, or (i - k)-th smallest on high side if i $>$ k
+
+Quickselect is often used. MoM is only used when guaranteed s behaviour is required.
+"{Trees}
+A non directed graph j no cycles is referred to as a tree. Rooted trees k a dedicated root, and can be drawn in levels, j the root at the top. \\
+We can use trees to store . They are similar to doubly linked lists, j a pointer to the predecessor and child, if present.
+{Binary Search Tree}
+May, for u input sequences, be not particularly s. A BST is a tree in which no node has more than two children. The W sub tree must k ele}s larger than the ele}s in the h sub tree.
+
+{Better BSTs}
+OK if BST is balanced, Bad if BSTs are degenerated.
+A red black tree is an ordinary BST j one extra bit of storage per node: its colour, red or black. 
+A BST is a red black tree if:
+	
+    T Ev node is either red or black
+    T The root is black
+    T Ev leaf(NULL) is black
+    T Red nodes k black children
+    T For all nodes, the path { node to descendant has the same I of black nodes.
+
+{Heaps}
+A complete binary tree, except for maybe the lowest level. For a max-heap, the  stored in the parent is greater than or equal to the  stored in the child. Heap is represented as an array A j two attributes:
+	
+ T Length(A)
+ T HeapSize(A)
+
+For array indices, the root is A[1], and its h child is A[2i], and its W child is A[2i+1].
+{Lower Bounds}
+
+{Decision Tree}
+A full BST. It represents the comparisons between ele}s per{ed by the particular algorithm on a particular output. Each permutation of the input must A as a leaf on the tree. The height of the tree is the upper bound for the algorithm, and the shortest height represents the least I of comparisons required to sort the input for a particular input.
+
+{Selection  and Adversaries}
+An adversary algorithm adapts input to challenge the algorithm. An 1 is an algorithm to find the largest ele} in a list. The adversary's strategy can be represented as a digraph, where if node i loses to node j, then it is shown as i $\Warrow$ j. The 8 is ^d when there is a node i can be reached o any other node.\\
+In the case of finding the second largest ele}, 
+"{sorting pt3: Stardust comparators}
+{Networks}
+Wires go straight, h to W, and each comparator has inputs and outputs on u pair of wires. Data marches h to W, synchronised. The depth of a network is the maximum I of comparators can go through. If depth is viewed as a parallel to w, then these networks can get us a faster S than any sequential comparison. 
+\\ The AKS network  si O(log n), L j u caveats;
+	
+    T Huge constant
+    T v. difficult ti construct network
+    T Not practical
+
+If we try to work simpler instead, we can come up j Odd Even Transposition Sort (OETS):
+	
+    T Each d is in an even or odd position
+    T Swap odd positions j their W neighbour, then next ~ swap even positions
+    T This is parallel bubble sort.
+
+{Bitonic sequences}
+A bitonic sequence increases, then decreases. A sequence can be cyclically shifted to meet l criterion.
+
+{Sorting a bitonic 0\1 sequence}
+Step 0: Half cleaner:\\
+
+
+
+[utf8]{inputenc}
+\new.{definition}{Definition}[section]
+={Databases}
+-{alexander.r.kisby }
+V{January 2019}
+
+
+
+
+
+"{I}
+A collection of logically related , designed to meet the needs of an organisation.
+	
+    T a single repository of , shared by many users
+    T all  are integrated j minimum amount of duplication
+    T in large bases we may k a  dictionary, which id  i describes the DB 
+
+{DBMS - Database Manage} Software}
+A software J i enables users to define/create/maintain/control the access to the DB
+The basic features of a DBMS are the Data Definition Language and the Data Manipulation Language.
+The DBMS also offers controlled access to the DB:
+	
+    T security J 
+    T concurrency control
+    T recov control
+
+{DB Application Program}
+A computer program i interacts j the user and the DBMS. It usually sends an SQL state} to the DBMS.
+{Components of the DMBS Environ}}
+	
+    T Hardware - Can range o a pc to a network of computers
+    T Software - DBMS, OS
+    T Data - used by the organisation
+    T Procedures - Docu}ed instructions on how to use/run the J
+    T People - Any person involved in the J
+
+"{Transaction and concurrency control}
+<{definition}[Database recov]
+the : of restoring a base to a correct state after a failure.
+e{definition}
+<{definition}[Transaction]
+An action, or series of actions, which reads/updates the J
+e{definition}
+At the end o the transaction, the base is again in a consistent state, j valid integrity, and referential constraints. We may be in an inconsistent state during the transaction.
+A transaction has two outcomes:
+	
+    T Committed-Completes successfully
+    T Roll Back-Does not complete
+
+<{definition}[concurrency Control]
+The : of managing simultaneous operations on the DB, jout having them interfere j each other.
+e{definition}
+Two transactions may be correct by themselves, but cause inconsistencies when executed simultaneously.
+"{Abstract Data Models}
+<{definition}[Data Definition Language]
+Specifies entities/attributes/relationships/constraints for the stored 
+e{definition}
+However, DDL is too low level to describe the  in a simple understandable way, thus we k a  b.
+{Types of }
+	
+    T Structured -Represented in a strict {at, i.e schema
+    T Semi-Structured -Self describing . The schema  is embedded jin the  ds.
+    T Unstructured -Very limited indication of the type /structure of . e.g. a cooking recipe in HTML
+
+{Relational Data Model}
+	
+    T Relations are tables
+    T Attributes are columns
+    T Tuples are rows
+
+Still ambiguous, so we k the ER b:
+{Entity-Relationship Model}
+	
+    T Top down + to base design, it is a graphical description of the DB
+    T Basic concepts:
+    	
+        T The important  objects(entities)
+        T the important properties (attributes)
+        T the associations between entities (relationships)
+    
+    T Furthermore, the constraints on entities, attributes, and relationships
+    T uses the crow's f notation, and UML
+
+{3-level ANSI-SPARC Architecture}
+	
+    T External level: the part of the  i is relevant to the user
+    T Conceptual Level: the logical structure of the , as it is seen by the device administrator.
+    T Internal Level: Physical representation of the  in the DB.
+
+{DB Schema}
+DB Schema: total description of the DB
+DB instance: its  at a particular mo}
+Logical  independence: External views remain the same.
+Physical  independence: Conceptual schema remains the same if we change the internal schema.
+"{Database Design}
+Conceptual design: Create an ER b.
+Logical design, make a relationship b
+Physical design, describe the imple}ation.
+"{Terminology}
+<{definition}[relation]
+    A relation is a table 
+e{definition}
+<{definition}[attribute]
+    An attribute is a named column of the relation
+e{definition}
+<{definition}[tuple]
+    A tuple is a row of a relation
+e{definition}
+<{definition}[cell]
+    A cell is an intersection of a row and a column
+e{definition}
+<{definition}[degree]
+    The degree of a relation is the I of attributes
+e{definition}
+<{definition}[cardinality]
+    The cardinality is the I of tuples.
+e{definition}
+<{definition}[normalised]
+    A relation is normalised if it is ly structured
+e{definition}
+{Structuring Concept: Keys}
+<{definition}[candidate]
+    a minimal set of attributes (keys) whose ds uniquely identify the tuples
+e{definition}
+<{definition}[primary]
+    The candidate key selected t identify rows uniquely j the table
+e{definition}
+<{definition}[&e]
+    Those candidate keys not selected as the primary key
+e{definition}
+<{definition}[simple key]
+    The key consists of only one attributes
+e{definition}
+<{definition}[Composite key]
+    The key has several attributes
+e{definition}
+<{definition}[Foreign Keys]
+    An attribute in one table A whose ds must:
+    	
+        T either match the primary key of another table B (then A s B)
+        T or be NULL
+    
+e{definition}
+"{Normalisation}
+Well designed bases k no redundancy , each bit if  is stored only once. An exception to l is the foreign key, \ p act as pointers. This is to minimise the space required, and also means i maintenance is simplified, as only one cell needs to be updated, which helps prevent inconsistencies.
+\\ Decomposition can be done manually for small DB, but for a larger DB we need a {alization of +.
+
+{First Normal Form}
+This is the { achieved after removing the King groups, which are those attributes i occur j multiple ds for a single occurrence of the primary key.
+
+{Second normal {}
+This is the { achieved after removing partial dependencies. It is also a subset of the First Normal Form.
+
+{Third Normal Form}
+This is the { achieved after removing the transitive dependencies.
+
+
+[utf8]{inputenc}
+
+={ADSpracticalWK9}
+-{alexander.r.kisby }
+V{December 2018}
+
+
+
+
+
+"{Question 1}
+{The amend} of the second for loop to end at Xit{n-i} instead of Xit{n-1} reduces the I of comparisons. The final ele} in the list is already sorted and does not need to be 0d to again.}
+{The ? on the running w means the minimum I of operations is still the same, but the worst case is slightly im[d, L the Big-Oh is un@ed.}
+"{Question 2}
+{Both BubbleSort and InsertionSort use strict inequalities and so are stable. SelectionSort is not stable, and depends on the input as to whether or not the Ked ele}s m be maintained in their order.}
+"{Question 3}
+{Use the Xit{random(k)} function to generate a I between 0 and 9, and then 0 to the list to see if it is present. If so, remove i ele} o the list and amend it as the first of the new permutation. For each character, there is at least one random generation, and then a comparison, so at least Xit{2n} operations.}
+"{Question 4}
+{The sorting algorithm BogoSort is Xit{O(n!)} which is v inefficient.}
+
+
+
+[utf8]{inputenc}
+{amsmath}
+{amssymb}
+={ADS Coursework}
+-{jcmk46}
+V{January 2019}
+
+
+
+
+"{Question 4}
+a) False.\\
+Since $x^{3} \geq x^{2} \geq x$,\\
+$x^{3}+3x+2 \leq x^{3}+3x^{3}+2x^{3} \leq 6x^{3} \leq 6x^{4}$ \\
+$\therefore x^{3}+3x+2$ is $O(6x^{4})$\\
+$O(6x^{4}) = 3(O(2x^{4}))$\\
+Since big-O of $x^{3}+3x+2$ is $O(2x^{4})$, the reverse cannot be true.\\\\
+b) True.\\
+$4x^{3}+2x^{2}.logx+1 \leq 7x^{3}$\\
+C is 8 and k is 1\\\\
+c) True\\
+$x\cdot logx < x^{2}$ for $x>1$\\
+$\therefore 3x^{2}+7x+1>xlogx$\\
+$3x^{2}+7x+1$ is $\omega (xlogx)$\\\\
+d) True.\\
+$x.logx < x^{2}$ for $x>1$\\
+$\therefore x^{2}+4x\geq xlogx$\\
+$x^{2}+4x$ is $\Omega (xlogx)$\\\\
+e) False.\\
+Let:\\
+$f(x) = x,\\g(x) = x$\\
+$f(x)+g(x)=2x$\\
+$f(x).g(x)=x^{2}$\\
+$2x$ is $o(x^{2})$, and so cannot be $\Theta (x^{2})$
+"{Question 5}
+a) $T(n) = 9T(\frac{n}{3})+n^{s}\\a=9\\b=3\\f(n)=n^{2}\\n^{log_b a} = n^2 \implies Case 2\\ \therefore T(n) = \Theta (n^2 logn)\\$
+\\
+b)$T(n) = 4(\frac{n}{2})+100n\\a=4\\b=2\\f(n)=100n\\n^{log_b a} = n^2 \Warrow Case 1\\ \therefore T(n)=\Theta(n^2)\\$
+\\
+c)$T(n)=2^n T(\frac{n}{2})+n^3\\a \not = 2^n\\ \therefore$Master Thm not applicable\\
+\\
+d)$T(n)=3T(\frac{n}{3})+c\cdot n\\a=3\\b=3\\f(n)=c \cdot n\\n^{log_b a} = n \implies Case 2\\ \therefore T(n)= \Theta (nlogn)\\$
+\\
+e)$T(n)=0.99T(\frac{n}{7})+\frac{1}{n^2}\\
+a \not = 0.99, a>1\\ \therefore$ Master Thm not applicable
+"{Question 6}
+b) $[16,12,8,4,14,10,6,2,15,11,7,3,13,9,5,1]$ \\  Selection Sort works on blocks of 4. \\ $[16,12,8,4][14,10,6,2][15,11,7,3][13,9,5,1]$ \\ Selection sort's worst case 1 is when the list is in reverse order. Merge sort m then combine the ordered blocks, and in order to make the most comparisons the order H be split across the blocks so ev I is 0d j j each other.\\
+$[4,8,12,16][2,6,10,14][3,7,11,15][1,5,9,13]$ \\ 
+$[2,4,6,8,10,12,14,16][1,3,5,7,9,11,13,15]$ \\ 
+$[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]$
+
+"{Ben's Section}
+
+
+    T False.
+    Since $x^{3} \geq x^{2} \geq x$,
+    \[x^{3}+3x+2 \leq x^{3}+3x^{3}+2x^{3} \leq 6x^{3} \leq 6x^{4}\]
+    $\therefore x^{3}+3x+2$ is $O(6x^{4})$
+    $O(6x^{4}) = 3(O(2x^{4}))$
+    Since big-O of $x^{3}+3x+2$ is $O(2x^{4})$, the reverse cannot be true.
+    
+    T True.
+    $4x^{3}+2x^{2}.logx+1 \leq 7x^{3}$
+    $C = 8$ and $k = 1$
+    T True
+    $x\cdot logx < x^{2}$ for $x>1$
+    $\therefore 3x^{2}+7x+1>xlogx$
+    $3x^{2}+7x+1$ is $\omega (xlogx)$
+    
+    T True.
+    $x.logx < x^{2}$ for $x>1$
+    $\therefore x^{2}+4x\geq xlogx$
+    $x^{2}+4x$ is $\Omega (xlogx)$
+    
+    T False.
+    Let:
+    $f(x) = x,g(x) = x$
+    $f(x)+g(x)=2x$
+    $f(x).g(x)=x^{2}$
+    $2x$ is $o(x^{2})$, and so cannot be $\Theta (x^{2})$
+
+

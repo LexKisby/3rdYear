@@ -3,19 +3,19 @@
 import os
 import sys
 import zipfile as zp
+#installed as lzma## where ## is the python version
 import lzma
 import bz2file
 
 f = sys.argv[1]
+f = f[:-4] ##assuming given tex file
+inf = f + ".tex"
 encodedf =  f + ".lz"
-tempf = f + ".temp"
+tempf = f + ".txt"
 
 #step 1 assemble dictionary
 dictionary = {}
 
-x = list(range(1, 128))
-for n in range(len(x)):
-    x[n] = chr(int(bin(x[n]), 2))
 
 #read in words from english.txt and words.txt
 def preplist(name):
@@ -68,8 +68,8 @@ def IndicesOf(c, string):
     while len(indices) < count:
         i = 0
         if len(indices) != 0:
-            i = indices[-1]
-        indices.append(string[i:].find(c))
+            i = indices[-1] + 1
+        indices.append(string[i:].find(c) + i)
     return indices
 
 def replace(string, word, replacement):
@@ -77,15 +77,26 @@ def replace(string, word, replacement):
     SignIndices = IndicesOf(replacement[0], string)
     wordIndices = IndicesOf(word, string)
     temp = list(string)
+    flag = False
     for i in range(len(wordIndices)):
-        if temp[wordIndices[i] - 1] == replacement[0]:
+        
+        if (temp[wordIndices[i] - 1] == replacement[0][0]) and wordIndices[i] != 0:
             print("not replacing")
             continue
         else:
-            print("replacing:  " + word + " with  " + replacement)
+            flag = True
+            #print("replacing:  " + word + " with  " + replacement)
             temp[wordIndices[i]] = replacement[0] + replacement[0] + replacement[0] + temp[wordIndices[i]]
+            #if word == '\\usepackage':
+                #print(wordIndices)
+                #print(temp)
     output = "".join(temp)
-    output = output.replace(replacement[0] + replacement[0] + replacement[0] + word, replacement)
+    if flag: 
+        #print(word)
+        #print("\n" + output)
+        output = output.replace(replacement[0] + replacement[0] + replacement[0] + word, replacement)
+        #print("sorts to :")
+        #print("\n" + output)
     return output
 
 
@@ -101,25 +112,57 @@ def Dictionary_replace(dic, string, signCode):
 
 
 out = Dictionary_replace(dictionary, lines, signCode)
-print(out)
+#print("\n\n" + out)
 
-tempf = open(tempf, "w")
-tempf.write(chr(signCode) + out)
-tempf.close()
+tempfile = open(tempf, "w")
+tempfile.write(chr(signCode) + out)
+tempfile.close()
 
-#compare zippers
+
+#compare zippers with intermediate step
 with zp.ZipFile('lzma.lz', 'w', zp.ZIP_LZMA) as myzip:
     myzip.write(tempf)
     if myzip.testzip() is not None:
         print("failed")
-
-with zp.ZipFile('deflate.lz', 'w', zp.ZIP_DEFLATED) as myzip2:
+with zp.ZipFile('deflate.lz', 'w', zp.ZIP_DEFLATED, compresslevel=9) as myzip2:
     myzip2.write(tempf)
-
-with zp.ZipFile("normal.lz", "w", zp.ZIP_BZIP2) as myzip3:
+with zp.ZipFile("normal.lz", "w", zp.ZIP_BZIP2, compresslevel=9) as myzip3:
     myzip3.write(tempf)
+#compare without
+with zp.ZipFile('lzma2.lz', 'w', zp.ZIP_LZMA) as myzip:
+    myzip.write(inf)
+    if myzip.testzip() is not None:
+        print("failed")
+with zp.ZipFile('deflate2.lz', 'w', zp.ZIP_DEFLATED, compresslevel=9) as myzip2:
+    myzip2.write(inf)
+with zp.ZipFile("normal2.lz", "w", zp.ZIP_BZIP2, compresslevel=9) as myzip3:
+    myzip3.write(inf)
+
 
 #compare sizes
-lzmaSize = os.path.getSize('lzma.lz')
-deflateSize = os.path.getSize('deflate.lz')
-normalSize = os.path.getSize('normal.lz')
+size = {
+tempf: os.path.getsize(tempf),
+'lzma.lz':os.path.getsize('lzma.lz'),
+'deflate.lz':os.path.getsize('deflate.lz'),
+'normal.lz':os.path.getsize('normal.lz'),
+'lzma2.lz':os.path.getsize('lzma2.lz'),
+'deflate2.lz':os.path.getsize('deflate2.lz'),
+'normal2.lz':os.path.getsize('normal2.lz')
+}
+size = sorted(size.items(), key=lambda item: item[1])
+print(size)
+os.remove(size[1][0])
+os.remove(size[2][0])
+os.remove(size[3][0])
+os.remove(size[4][0])
+os.remove(size[5][0])
+os.remove(size[6][0])
+
+output = open(encodedf, "wb")
+final = open(size[0][0], "rb")
+output.write(final.read())
+output.close()
+final.close()
+os.remove(size[0][0])
+
+

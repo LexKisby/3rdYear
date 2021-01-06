@@ -8,9 +8,7 @@
 \usepackage
 \newcommand
 \verb
-\textit
-\textbf
-\appendix
+appendix
 ntroduction
 \author
 \title
@@ -42,5 +40,4 @@ right
 \end{itemize}
 \begin{figure}
 \end{figure}
-\def
 \text
