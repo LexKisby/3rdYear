@@ -21,7 +21,6 @@
 #include <iomanip>
 
 #include <cmath>
-#include <omp.h>
 
 double t = 0;
 double tFinal = 0;
@@ -223,6 +222,8 @@ void updateBody()
 ////This implementation runs on the basis that the supplied velocity and position are correct and do not need to be
 ////adjusted by forces before use, i.e v = hf(tn, yn)
 {
+    //////////////////////////////////////////////////////
+    //Init values
     C = 0.01 / NumberOfBodies;
     maxV = 0.0;
     minDx = std::numeric_limits<double>::max();
@@ -233,126 +234,116 @@ void updateBody()
     {
         maxMass = std::max(maxMass, mass[m]);
     }
-
     double *forcex = new double[NumberOfBodies];
     double *forcey = new double[NumberOfBodies];
     double *forcez = new double[NumberOfBodies];
 
+    ////////////////////////////////////////////////////////
+    //generate intermediate positions at half timestep
     double **tempX;
     double **tempV;
     tempX = new double *[NumberOfBodies];
     tempV = new double *[NumberOfBodies];
-    int procs = omp_get_num_procs();
-    omp_set_num_threads(procs);
-
-    //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
-
-#pragma omp parallel
-    {
-        //decided to not extract into functions
-
-#pragma omp for
-        for (int i = 0; i < NumberOfBodies; i++)
-        {
-            tempX[i] = new double[3];
-            tempV[i] = new double[3];
-
-            //temp positions
-            tempX[i][0] = x[i][0] + timeStepSize * v[i][0] * 0.5;
-            tempX[i][1] = x[i][1] + timeStepSize * v[i][1] * 0.5;
-            tempX[i][2] = x[i][2] + timeStepSize * v[i][2] * 0.5;
-
-            //init forces
-            forcex[i] = 0.0;
-            forcey[i] = 0.0;
-            forcez[i] = 0.0;
-        }
-    }
-// force from temp pos
-#pragma omp parallel
-    {
-#pragma omp for
-        for (int n = 0; n < NumberOfBodies; n++)
-        {
-            for (int m = 0; m < NumberOfBodies; m++)
-            {
-                if (n == m)
-                {
-                    continue;
-                }
-                double Gx, Gy, Gz;
-                double distance = sqrt(
-                    (tempX[n][0] - tempX[m][0]) * (tempX[n][0] - tempX[m][0]) +
-                    (tempX[n][1] - tempX[m][1]) * (tempX[n][1] - tempX[m][1]) +
-                    (tempX[n][2] - tempX[m][2]) * (tempX[n][2] - tempX[m][2]));
-
-                Gx = (tempX[n][0] - tempX[m][0]) * mass[n] * mass[m] / distance / distance / distance;
-                Gy = (tempX[n][1] - tempX[m][1]) * mass[n] * mass[m] / distance / distance / distance;
-                Gz = (tempX[n][2] - tempX[m][2]) * mass[n] * mass[m] / distance / distance / distance;
-
-                forcex[n] -= Gx;
-
-                forcey[n] -= Gy;
-
-                forcez[n] -= Gz;
-            }
-            int i = n;
-            //new v
-            tempV[i][0] = v[i][0] + timeStepSize * forcex[i] / mass[i];
-            tempV[i][1] = v[i][1] + timeStepSize * forcey[i] / mass[i];
-            tempV[i][2] = v[i][2] + timeStepSize * forcez[i] / mass[i];
-
-            forcex[i] = 0.0;
-            forcey[i] = 0.0;
-            forcez[i] = 0.0;
-        }
-    }
-//////////////////////////////////////////////////////////////////
-//apply intermediate velocity to supplied position as full timestep
 #pragma omp simd
-    for (int j = 0; j < NumberOfBodies; j++)
+    for (int i = 0; i < NumberOfBodies; i++)
     {
-        x[j][0] += timeStepSize * tempV[j][0];
-        x[j][1] += timeStepSize * tempV[j][1];
-        x[j][2] += timeStepSize * tempV[j][2];
+        tempX[i] = new double[3];
+        tempV[i] = new double[3];
+
+        tempX[i][0] = x[i][0] + timeStepSize * v[i][0] * 0.5;
+        tempX[i][1] = x[i][1] + timeStepSize * v[i][1] * 0.5;
+        tempX[i][2] = x[i][2] + timeStepSize * v[i][2] * 0.5;
+
+        //init forces
+        forcex[i] = 0.0;
+        forcey[i] = 0.0;
+        forcez[i] = 0.0;
     }
 
-#pragma omp parallel reduction(min \
-                               : minDx)
+    //////////////////////////////////////////////////////////////
+    //generate intermediate force from tempX
+    for (int n = 0; n < NumberOfBodies - 1; n++)
     {
-#pragma omp for
-        for (int n = 0; n < NumberOfBodies - 1; n++)
+#pragma omp simd
+        for (int m = n + 1; m < NumberOfBodies; m++)
         {
+            double Gx, Gy, Gz;
+            double distance = sqrt(
+                (tempX[n][0] - tempX[m][0]) * (tempX[n][0] - tempX[m][0]) +
+                (tempX[n][1] - tempX[m][1]) * (tempX[n][1] - tempX[m][1]) +
+                (tempX[n][2] - tempX[m][2]) * (tempX[n][2] - tempX[m][2]));
 
-            for (int m = n + 1; m < NumberOfBodies; m++)
-            {
-                double Gx, Gy, Gz;
-                double distance = sqrt(
-                    (x[n][0] - x[m][0]) * (x[n][0] - x[m][0]) +
-                    (x[n][1] - x[m][1]) * (x[n][1] - x[m][1]) +
-                    (x[n][2] - x[m][2]) * (x[n][2] - x[m][2]));
+            Gx = (tempX[n][0] - tempX[m][0]) * mass[n] * mass[m] / distance / distance / distance;
+            Gy = (tempX[n][1] - tempX[m][1]) * mass[n] * mass[m] / distance / distance / distance;
+            Gz = (tempX[n][2] - tempX[m][2]) * mass[n] * mass[m] / distance / distance / distance;
 
-                minDx = std::min(minDx, distance);
-
-                Gx = (x[n][0] - x[m][0]) * mass[n] * mass[m] / distance / distance / distance;
-                Gy = (x[n][1] - x[m][1]) * mass[n] * mass[m] / distance / distance / distance;
-                Gz = (x[n][2] - x[m][2]) * mass[n] * mass[m] / distance / distance / distance;
-
-                forcex[n] -= Gx;
-
-                forcey[n] -= Gy;
-
-                forcez[n] -= Gz;
-            }
-            int i = n;
-            v[i][0] += timeStepSize * forcex[i] / mass[i];
-            v[i][1] += timeStepSize * forcey[i] / mass[i];
-            v[i][2] += timeStepSize * forcez[i] / mass[i];
+            forcex[n] -= Gx;
+            forcex[m] += Gx;
+            forcey[n] -= Gy;
+            forcey[m] += Gy;
+            forcez[n] -= Gz;
+            forcez[m] += Gz;
         }
     }
 
-    //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
-    //parallel over
+//////////////////////////////////////////////////////////////////
+//generate intermediate velocity from supplied velocity and intermediate force
+#pragma omp simd
+    for (int i = 0; i < NumberOfBodies; i++)
+    {
+        tempV[i][0] = v[i][0] + timeStepSize * forcex[i] / mass[i];
+        tempV[i][1] = v[i][1] + timeStepSize * forcey[i] / mass[i];
+        tempV[i][2] = v[i][2] + timeStepSize * forcez[i] / mass[i];
+
+        forcex[i] = 0.0;
+        forcey[i] = 0.0;
+        forcez[i] = 0.0;
+
+        //////////////////////////////////////////////////////////////////
+        //apply intermediate velocity to supplied position as full timestep
+        x[i][0] += timeStepSize * tempV[i][0];
+        x[i][1] += timeStepSize * tempV[i][1];
+        x[i][2] += timeStepSize * tempV[i][2];
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //generate new force from new pos
+    for (int n = 0; n < NumberOfBodies - 1; n++)
+    {
+#pragma omp simd reduction(min \
+                           : minDx)
+        for (int m = n + 1; m < NumberOfBodies; m++)
+        {
+            double Gx, Gy, Gz;
+            double distance = sqrt(
+                (x[n][0] - x[m][0]) * (x[n][0] - x[m][0]) +
+                (x[n][1] - x[m][1]) * (x[n][1] - x[m][1]) +
+                (x[n][2] - x[m][2]) * (x[n][2] - x[m][2]));
+
+            minDx = std::min(minDx, distance);
+
+            Gx = (x[n][0] - x[m][0]) * mass[n] * mass[m] / distance / distance / distance;
+            Gy = (x[n][1] - x[m][1]) * mass[n] * mass[m] / distance / distance / distance;
+            Gz = (x[n][2] - x[m][2]) * mass[n] * mass[m] / distance / distance / distance;
+
+            forcex[n] -= Gx;
+            forcex[m] += Gx;
+            forcey[n] -= Gy;
+            forcey[m] += Gy;
+            forcez[n] -= Gz;
+            forcez[m] += Gz;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    //generate new velocity from new force and original velocity
+    for (int i = 0; i < NumberOfBodies; i++)
+    {
+        v[i][0] += timeStepSize * forcex[i] / mass[i];
+        v[i][1] += timeStepSize * forcey[i] / mass[i];
+        v[i][2] += timeStepSize * forcez[i] / mass[i];
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //detect collisions
     if (minDx <= C * 2 * maxMass)
@@ -396,6 +387,8 @@ void updateBody()
             }
         }
     }
+
+//////////////////////////////////////////////////
 //final inits
 #pragma omp simd
     for (int i = 0; i < NumberOfBodies; i++)
@@ -407,15 +400,13 @@ void updateBody()
     delete[] tempV;
 
     maxV = 0;
-
-#pragma omp parallel for reduction(max \
-                                   : maxV)
+#pragma omp simd reduction(max \
+                           : maxV)
     for (int i = 0; i < NumberOfBodies; i++)
     {
         double notV = v[i][0] * v[i][0] + v[i][1] * v[i][1] + v[i][2] * v[i][2];
         maxV = std::max(std::sqrt(notV), maxV);
     }
-
     t += timeStepSize;
 
     delete[] forcex;

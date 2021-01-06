@@ -269,10 +269,12 @@ void updateBody()
         }
     }
 // force from temp pos
+//THIS DOES TWICE THE CALCULATIONS AND YET IS TWICE AS FAST AS STEP3 ON SINGLE THREAD. THEN IT GETS SLOWER THE MORE CORES THERE ARE I JUST DONT UNDERSTAND WHYYYY
 #pragma omp parallel
     {
 #pragma omp for
         for (int n = 0; n < NumberOfBodies; n++)
+        //each thread handles one body per outer loop, removes the symmetry from before, thus doubling operations but ops can be parallel.
         {
             for (int m = 0; m < NumberOfBodies; m++)
             {
@@ -289,7 +291,7 @@ void updateBody()
                 Gx = (tempX[n][0] - tempX[m][0]) * mass[n] * mass[m] / distance / distance / distance;
                 Gy = (tempX[n][1] - tempX[m][1]) * mass[n] * mass[m] / distance / distance / distance;
                 Gz = (tempX[n][2] - tempX[m][2]) * mass[n] * mass[m] / distance / distance / distance;
-
+                //only handled by one thread so no worries from simultaneous read write
                 forcex[n] -= Gx;
 
                 forcey[n] -= Gy;

@@ -1,0 +1,98 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, total={7in, 10in}]{geometry}
+\usepackage{pgfgantt}
+
+\title{Games and Blockchain \\3rd Year Project}
+\author{alexander.r.kisby@durham.ac.uk }
+\date{October 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Background}
+Blockchain as a technology has come far from the humble beginnings it had as the backbone of the now famous Bitcoin, which in late 2017 was trading for around \$20,000, from around 10 cents for a single coin [1].
+
+Blockchain itself is the distributed online ledger that cryptographically records the transactions between users on the platform; distributed inherently because the transaction history is validated and maintained by several independent nodes. Decentralisation, on the other hand, though often touted as a positive for blockchain, is more a question of design than an inherent quality, meaning it is up to developers whether or not they want a governing body to maintain the system, or have a proof system that can guarantee the integrity of the system. [2] 
+
+What separates blockchain from other online ledgers is the existence of packages called blocks that hold the data in an unchangeable state, this data often pertaining to participants, value and time of transactions.  [3] Once a block has been filled, this being from one to potentially hundreds of thousands of transactions per block, the block is then given a unique, identifying code, or hash, and the hash of the previous block in the chain. 
+
+As technology companies and institutions want to expand into blockchain, newer solutions have appeared. Ethereum, a crypto currency like Bitcoin, offers a distinct advantage over its predecessor; smart contracts allow users to execute code using the network of thousands of computers sustaining the ethereum blockchain, which, though sounding impressive, leads to computation being far more expensive, with the official dev tutorial comparing the Ethereum Virtual Machine (EVM) to "a smartphone from 1999." [4] 
+
+CryptoKitties is one such expansion into new avenues using the platform provided by the Ethereum blockchain that uses the ERC-721 to generate unique non fungible tokens, or cryptoKitties, that can be exchanged or reproduced by users. 
+\section{Research Question}
+\subsubsection*{Investigating the capabilities of smart contracts for novel experiences using non fungible tokens}
+\vspace{5mm}
+My project is aimed at using the ethereum platform and the smart contracts enabled by it to develop a trading based game using non-fungible tokens as a basis for the goods traded. The aim is to determine the level of complexity afforded by the ethereum platform, as well as implement the tokens using the ERC-721 protocol for non fungible tokens. The project aims to discover the relationship between functionality and gas, the price for a particular transaction on the blockchain, as well as look at the unique experiences that only a blockchain can provide thanks to its transparency and standards that govern tokens in the system.
+
+\section{Preliminary Preparation}
+Before the main project can fully begin, a complete understanding of the available technologies is necessary, as well as experience in the Ethereum Turing complete language Solidity. Implementing some lower scale smart contracts would be a progressive way to advance into a more in depth project. Familiarity with the mechanics of non fungible tokens is also key, and tantamount to the project's success. 
+
+\section{Project Objectives}
+\subsection*{Minimum}
+Fundamentally, the project requires a trading system developed on the Ethereum smart contract platform. More specifically, the minimum requirements are as follows:
+\begin{enumerate}
+    \item A smart contract that contains non fungible tokens and their owners
+    \item The functionality to generate new non fungible tokens based on two "parent" tokens
+    \item  A kind of GUI for a user to view the inventory of an account, to be expanded to offer functionalities like trading tokens or other in game items
+  
+\end{enumerate}
+\subsection*{Intermediate}
+The goals that I intend to implement to round out the project, and offer a more game like experience.
+\begin{enumerate}
+    \item Complex reproduction system based off of "genetic profile" of two "parent" crypto objects, guaranteeing uniqueness and introducing mechanics to introduce variation in "genetics".
+    \item A smart contract to handle market events, like the auctioning of crypto objects ("8-bit Beasts"), as well as temporary loaning.
+    \item Introduction of mechanics like a currency system, and level/stat system for crypto objects as a means of valuation and comparison, to be utilised further later
+    \item Develop GUI into a more companion app oriented system, using the Flutter framework
+\end{enumerate}
+\subsection*{Advanced}
+The goals that make the project a finished product
+\begin{enumerate}
+    \item Battle system utilising the stats/levels of crypto objects to offer player vs player interactions as well as player vs event interactions with a global boss
+    \item Separate contract into separate contracts with interfaces, allowing for further future expansion, to develop an ecosystem environment.
+    \item Make the cypto object token ERC-721 compatible
+    \item Develop a simple node server which, based on "genetic profile" passed in url composes an image of the crypto object to be used in the companion app
+\end{enumerate}
+
+
+\section{Project Milestones}
+\begin{ganttchart}{1}{24}
+\gantttitlelist{2020,2021}{12}\\
+\gantttitlelist{7,8,9,10,11,12,1,2,3,4,5,6}{2}\\
+
+\ganttbar{Project Proposal}{7}{8}\\
+\ganttbar{Literature Review}{7}{8}\\
+\ganttbar{Presentation Prep}{12}{12}\\
+\ganttbar{Final Paper}{16}{20}\\
+
+\ganttbar{Min 1}{9}{9}\\
+\ganttbar{Min 2}{9}{9}\\
+\ganttbar{Min 3}{10}{11}\\
+\ganttlink{elem5}{elem6}
+\ganttbar{Int 1}{12}{13}\\
+\ganttlink{elem5}{elem7}
+\ganttbar{Int 2}{14}{15}\\
+\ganttbar{Int 3}{14}{15}\\
+\ganttbar{Int 4}{11}{17}\\
+\ganttbar{Adv 1}{15}{17.5}\\
+\ganttbar{Adv 2}{15}{15}\\
+\ganttbar{Adv 3}{16}{16}\\
+\ganttbar{Adv 4}{15}{18}\\
+
+
+
+
+
+
+\end{ganttchart}
+
+\section*{References}
+
+\begin{itemize}
+    \item Edwards, J., 2020.\textit{Bitcoin's Price History.} [online] Investopedia. Available at:\\ https://www.investopedia.com/articles/forex/121815/bitcoins-price-history.asp [Accessed 19 October 2020]. 
+    \item Reiff, N., 2020. \textit{Blockchain Explained.} [online] Investopedia. Available at:\\ https://www.investopedia.com/terms/b/blockchain.asp [Accessed 19 October 2020].
+    \item Rutland, E., 2020. \textit{Blockchain Byte} [pdf] R3, pp.2-7. Available at:\\ https://www.finra.org/sites/default/files/2017\_BC\_Byte.pdf [Accessed 19 October 2020].
+    \item Hertig, A., 2017. \textit{Ethereum 101} [online] CoinDesk. Available at:\\ https://www.coindesk.com/learn/ethereum-101/how-ethereum-works [Accessed 19 October 2020].
+\end{itemize}
+\end{document}

@@ -137,7 +137,7 @@ def step3(zip):
   else:
     print( "Compiled source code with " + arguments + " ... failed: " + test.last_output )
 
-  arguments = create_initial_conditions.create_no_noise_grid_setup( 0, 1, 0.0001, 0.1, 0.1, [2,1,1] )
+  arguments = create_initial_conditions.create_random_grid_setup( 0, 10, 0.0001, 0.1, 0.1, [2,1,1] )
   print( "Run code with " + arguments )
   result = test.run( arguments )
   if result==1:
@@ -147,9 +147,9 @@ def step3(zip):
 
 
 def step4(zip):
-  f = zip.open("step-4.cpp")
+  f = zip.open("step-3.cpp")
   content = f.read()
-  f = open('step-4.cpp', 'wb')
+  f = open('step-3.cpp', 'wb')
   f.write(content)
   f.close()
   print( "========" )
@@ -157,9 +157,9 @@ def step4(zip):
   print( "========" )
   print( "Extracted step-4.cpp ... ok" )
        
-  test = Test.Test( "step-4.cpp" )
+  test = Test.Test( "step-3.cpp" )
   
-  arguments = "icpc -O3 -xhost --std=c++0x -fopenmp"
+  arguments = "g++ -O3 --std=c++0x -fopenmp"
   result = test.compile( arguments )
   if result==1:
     print( "Compiled source code with " + arguments + " ... ok" )
@@ -240,11 +240,11 @@ if __name__=="__main__":
       else:
         print( "Number of archived files: " + str(submitted_number_of_zip_files) + " ... wrong. Should be exactly " + str(correct_number_of_zip_files ) )
 
-      step1(zip)        
-      step2(zip)        
-      step3(zip)
+      ##step1(zip)        
+      ##step2(zip)        
+      ##step3(zip)
       step4(zip)
-      step5(zip)
+      ##step5(zip)
       
       print( """
       
